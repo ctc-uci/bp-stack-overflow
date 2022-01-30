@@ -33,6 +33,16 @@ function login() {
   signInWithRedirect(auth, provider);
 }
 
+function grab() {
+  const req = new XMLHttpRequest();
+  const url = '/api';
+  req.open('GET', url);
+  req.send();
+  req.onload = function () {
+    document.getElementById('inc').innerHTML = req.responseText;
+  };
+}
+
 function App() {
   return (
     <div className="App">
@@ -51,6 +61,9 @@ function App() {
         </a>
         <button onClick={login} type="button">
           Click Me
+        </button>
+        <button onClick={grab} type="button" id="inc">
+          Incrementor Button.
         </button>
       </header>
     </div>

@@ -12,7 +12,14 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ]
+    ],
+    "rewrites": [ {
+    "source": "/api",
+    "run": {
+      "serviceId": "api",
+      "region": "us-central1"
+    }
+  } ]
   },
   "storage": {
     "rules": "storage.rules"
