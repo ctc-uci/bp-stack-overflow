@@ -8,13 +8,19 @@ import { getAuth, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth';
 import logo from './logo.svg';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyAGBsHHYk34WoR8babtQuuAngAkTJCKTb8',
-  authDomain: 'test-project-alpha-6c208.firebaseapp.com',
-  projectId: 'test-project-alpha-6c208',
-  storageBucket: 'test-project-alpha-6c208.appspot.com',
-  messagingSenderId: '879261039329',
-  appId: '1:879261039329:web:4bf6e1dfc5fa5c7789d5a0',
-  measurementId: 'G-56WCVPWVXV',
+  apiKey: 'AIzaSyCMz9kvTfHzop70iJ8wzgY8v7orQhjHADE',
+
+  authDomain: 'ctcoverflow.firebaseapp.com',
+
+  projectId: 'ctcoverflow',
+
+  storageBucket: 'ctcoverflow.appspot.com',
+
+  messagingSenderId: '119770833435',
+
+  appId: '1:119770833435:web:a4c140d8ab10a77395cebe',
+
+  measurementId: 'G-GN5NEXY84Y',
 };
 
 // Initialize Firebase
