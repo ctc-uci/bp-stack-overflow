@@ -35,11 +35,21 @@ function login() {
 
 function grab() {
   const req = new XMLHttpRequest();
-  const url = '/api';
+  const url = '/api/inc';
   req.open('GET', url);
   req.send();
   req.onload = function () {
     document.getElementById('inc').innerHTML = req.responseText;
+  };
+}
+
+function loadPosts() {
+  const req = new XMLHttpRequest();
+  const url = '/api/read';
+  req.open('GET', url);
+  req.send();
+  req.onload = function () {
+    document.getElementById('posts').innerHTML = req.responseText;
   };
 }
 
@@ -65,6 +75,20 @@ function App() {
         <button onClick={grab} type="button" id="inc">
           Incrementor Button.
         </button>
+
+        <form action="/api/add" method="POST">
+          <label htmlFor="body">
+            Body:
+            <input type="text" name="body" id="body" />
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
+
+        <button onClick={loadPosts} type="button">
+          Load Posts.
+        </button>
+
+        <p id="posts"> Posts will load here! </p>
       </header>
     </div>
   );
