@@ -1,10 +1,15 @@
 import React from 'react';
-import './App.css';
-
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Nav, NavDropdown, Navbar, Container } from 'react-bootstrap';
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { getAuth, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth';
 
+import Help from './pages/Help';
+import Home from './pages/Home';
+import Leaderboard from './pages/Leaderboard';
+import ProjectSubmission from './pages/ProjectSubmission';
+import './App.css';
 import logo from './logo.svg';
 
 const firebaseConfig = {
@@ -38,7 +43,7 @@ function grab() {
   const url = '/api/inc';
   req.open('GET', url);
   req.send();
-  req.onload = function () {
+  req.onload = () => {
     document.getElementById('inc').innerHTML = req.responseText;
   };
 }
@@ -48,48 +53,74 @@ function loadPosts() {
   const url = '/api/read';
   req.open('GET', url);
   req.send();
-  req.onload = function () {
+  req.onload = () => {
     document.getElementById('posts').innerHTML = req.responseText;
   };
+}
+
+let leaderboardActive = '';
+let projectIdeasActive = '';
+let helpActive = '';
+
+const currentURL = new URL(window.location.href);
+const currentPathName = currentURL.pathname;
+
+switch (currentURL.pathname) {
+  case '/leaderboard':
+    leaderboardActive = 'true';
+    break;
+  case '/project-submission':
+    projectIdeasActive = 'true';
+    break;
+  case '/help':
+    helpActive = 'true';
+    break;
+  default:
+    break;
 }
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <button onClick={login} type="button">
-          Click Me
-        </button>
-        <button onClick={grab} type="button" id="inc">
-          Incrementor Button.
-        </button>
-
-        <form action="/api/add" method="POST">
-          <label htmlFor="body">
-            Body:
-            <input type="text" name="body" id="body" />
-          </label>
-          <input type="submit" value="Submit" />
-        </form>
-
-        <button onClick={loadPosts} type="button">
-          Load Posts.
-        </button>
-
-        <p id="posts"> Posts will load here! </p>
-      </header>
+      <BrowserRouter>
+        <Navbar bg="light" expand="lg" variant="dark">
+          <Container fluid>
+            <Navbar.Brand href="/">
+              <img src={logo} alt="CTC Overflow Logo" width="100" />
+              CTC Overflow
+            </Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="ms-auto">
+                <Nav.Link href="/leaderboard" active={leaderboardActive}>
+                  Leaderboard
+                </Nav.Link>
+                <NavDropdown title="Projects" id="basic-nav-dropdown">
+                  <NavDropdown.Item href="/view-project/1/">Find Your Anchor</NavDropdown.Item>
+                  <NavDropdown.Item href="/view-project/2/">OC Habitats</NavDropdown.Item>
+                  <NavDropdown.Item href="/view-project/3/">The Literacy Project</NavDropdown.Item>
+                  <NavDropdown.Item href="/view-project/4/">Abound Food Care</NavDropdown.Item>
+                </NavDropdown>
+                <Nav.Link href="/project-submission" active={projectIdeasActive}>
+                  Project Ideas
+                </Nav.Link>
+                <Nav.Link href="/help" active={helpActive}>
+                  Need Help?
+                </Nav.Link>
+                <button onClick={login} type="button" className="btn btn-warning">
+                  Login
+                </button>
+              </Nav>
+            </Navbar.Collapse>
+          </Container>
+        </Navbar>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/project-submission" element={<ProjectSubmission />} />
+          <Route path="/help" element={<Help />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
