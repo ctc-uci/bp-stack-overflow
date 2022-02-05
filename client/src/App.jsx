@@ -6,7 +6,7 @@ import { getAnalytics } from 'firebase/analytics';
 import { getAuth, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth';
 
 import Help from './pages/Help';
-import Home from './pages/Home';
+import Home from './pages/Home/Home';
 import Leaderboard from './pages/Leaderboard';
 import ProjectSubmission from './pages/ProjectSubmission';
 import './App.css';
@@ -107,7 +107,12 @@ function App() {
                 <Nav.Link href="/help" active={helpActive}>
                   Need Help?
                 </Nav.Link>
-                <button onClick={login} type="button" className="btn btn-warning">
+                <button
+                  onClick={login}
+                  type="button"
+                  className="btn btn-warning"
+                  style={{ marginLeft: '0.5rem' }}
+                >
                   Login
                 </button>
               </Nav>
