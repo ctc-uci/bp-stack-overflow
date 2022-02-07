@@ -7,6 +7,9 @@ yarn-error.log*
 firebase-debug.log*
 firebase-debug.*.log*
 
+#please do not commit the google cloud key
+server/key.json
+
 # Firebase cache
 .firebase/
 
