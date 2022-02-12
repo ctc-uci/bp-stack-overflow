@@ -20,7 +20,7 @@ db = firestore.client()
 app = Flask(__name__)
 
 #look mom, here's some important backend!
-
+users = db.collection('users')
 posts = db.collection('posts')
 comments = db.collection('comments')
 
@@ -41,7 +41,7 @@ def read():
     return ",\n".join(i.to_dict()["body"] for i in db.collection('posts').stream())
 
 def commend(user):
-    #TODO: store that this user was commended
+    users[user]['helpPoints'] += 1
     print("Would commend",user)
 
 @app.route('/api/makePost',methods=['POST'])
@@ -91,6 +91,28 @@ def like():
     commend(tochange['author'])
     posts.document(parent).set(pdoc)
     return "OK",200
+
+@app.route('/api/leaderboard',methods=['GET'])
+def leaderboard():
+    userdict = {}
+    pointLeaderboard = {}
+    for x in users:
+        userdict[x['username']] = x['helpPoints']
+    count = 0;
+    for i in userdict.items().sort(key=lambda y: y[1],reverse=True):
+        count += 1
+        pointLeaderboard[count] = i
+    return {results: pointLeaderboard}
+
+@app.route('/api/submitRequest', methods=['POST'])
+def submitRequest():
+    #TODO
+    user = request.json['id']
+
+@app.route('/api/status', methods=['GET'])
+def status():
+    #TODO
+    user = request.json['id']
 
 if __name__ == "__main__":
     app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 8080)))
