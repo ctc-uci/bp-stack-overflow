@@ -1,9 +1,14 @@
 import React from 'react';
+import { Container } from 'react-bootstrap';
+import LeaderboardEntry from '../components/LeaderboardEntry/LeaderboardEntry';
 
 function Leaderboard() {
   return (
     <div className="Leaderboard">
-      <h1>This is the leaderboard page</h1>
+      <Container fluid className="vh 100">
+        <h2>Leaderboard</h2>
+        <LeaderboardEntry name="One" points="5" />
+      </Container>
     </div>
   );
 }
