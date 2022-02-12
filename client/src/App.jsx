@@ -63,7 +63,6 @@ let projectIdeasActive = '';
 let helpActive = '';
 
 const currentURL = new URL(window.location.href);
-const currentPathName = currentURL.pathname;
 
 switch (currentURL.pathname) {
   case '/leaderboard':

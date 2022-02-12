@@ -1,4 +1,5 @@
 import React from 'react';
+import { format } from 'date-fns';
 import Post from '../../components/Post/Post';
 import './Home.css';
 
@@ -6,7 +7,7 @@ const days = [];
 for (let i = 0; i < 5; i += 1) {
   const day = new Date();
   day.setDate(day.getDate() - i);
-  days.push(day);
+  days.push(format(day, 'eeee LLLL d, yyyy'));
 }
 
 function Home() {
@@ -42,7 +43,7 @@ function Home() {
               style={{ marginBottom: '2rem' }}
             >
               <div className="col-md-12">
-                <h1 style={{ marginBottom: '1.5rem' }}>{date.toDateString()}</h1>
+                <h1 style={{ marginBottom: '1.5rem' }}>{date}</h1>
                 <Post
                   date="9:00AM"
                   question="Git Shows Weird Error Message When Committing"
