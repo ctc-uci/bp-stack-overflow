@@ -1,9 +1,13 @@
 import React from 'react';
+import { Container } from 'react-bootstrap';
+import HelpForm from '../components/HelpForm/HelpForm';
 
 function Help() {
   return (
-    <div className="Help">
-      <h1>This is the help page</h1>
+    <div>
+      <Container fluid className="vh 100">
+        <HelpForm />
+      </Container>
     </div>
   );
 }
