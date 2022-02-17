@@ -3,10 +3,10 @@ import os
 from flask import Flask, request
 import firebase_admin
 from firebase_admin import credentials
-from firebase_admin import firestore
+from firebase_admin import firestore,auth
 from datetime import datetime
 
-# Use the application default credentials
+#Initialize important resources
 cred = credentials.ApplicationDefault()
 firebase_admin.initialize_app(cred, {
   'projectId': "ctcoverflow",
@@ -14,39 +14,41 @@ firebase_admin.initialize_app(cred, {
 
 db = firestore.client()
 
-
-
-
 app = Flask(__name__)
 
-#look mom, here's some important backend!
 users = db.collection('users')
 posts = db.collection('posts')
-comments = db.collection('comments')
 
-x = 0
-@app.route('/api/inc')
-def hello_world():
-    global x
-    x += 1
-    return str(f"Clicked {x} times.")
 
-@app.route('/api/add',methods=['POST'])
-def add():
-    db.collection('posts').add({"body": request.form['body']})
-    return "HTTP OK",200
+# Helper functions!!
 
-@app.route('/api/read',methods=['GET'])
-def read():
-    return ",\n".join(i.to_dict()["body"] for i in db.collection('posts').stream())
+def uid_to_email(uid):
+    return auth.get_user(uid).email #Todo: instead of being lazy, handle the case where we have bad uid explicitly!
 
-def commend(user):
-    users[user]['helpPoints'] += 1
-    print("Would commend",user)
+def user_from_email(addr):
+    res = list(users.where('username','==',addr).stream())
+    if not len(res):
+        users.add({"username":addr,"helpPoints":0,"status":[]})
+    res = list(users.where('username','==',addr).stream()) # we may have created a new object for this user if none found, so search again.
+    return res[0]
+
+def commend(addr,message):
+    ref = user_from_email(addr)
+    r2 = ref.to_dict()
+    r2['helpPoints'] += 1
+    r2['status'].append(message)
+    users.document(ref.id).set(r2)
+
+@app.route('/api/commend',methods=['POST'])
+def commendMethod():
+    uid = uid_to_email(request.json['uid'])
+    commend(request.json['id'],request.json['message'])
+    return "OK",200
 
 @app.route('/api/makePost',methods=['POST'])
 def makePost():
-    json = {"author":request.json['id'], 'points':0, 'title': request.json['title'], 'body': request.json['body'], 'date':  datetime.now().strftime("%m/%d/%Y"), 'answers': []}
+    addr = uid_to_email(request.json['uid'])
+    json = {"author":addr, 'voters':[], 'title': request.json['title'], 'body': request.json['body'], 'date':  datetime.now().strftime("%m/%d/%Y"), 'answers': []}
     posts.add(json)
     return "OK",200
 
@@ -54,8 +56,9 @@ def makePost():
 @app.route('/api/makeComment',methods=['POST'])
 def makeComment():
     parent = request.json['parent']
+    addr = uid_to_email(request.json['uid'])
     pdoc = posts.document(parent).get().to_dict()
-    newComment = {'author': request.json['author'], 'body': request.json['body'], 'parent': request.json['parent'],"points":0}
+    newComment = {'author': addr, 'body': request.json['body'], 'parent': request.json['parent'],"voters":[]}
     pdoc['answers'].append(newComment)
     posts.document(parent).set(pdoc)
     return "OK",200
@@ -81,38 +84,39 @@ def searchPosts():
 
 @app.route('/api/like',methods=['POST'])
 def like():
+    addr = uid_to_email(request.json['uid'])
     parent = request.json['id']
     target = int(request.json['index'])
     pdoc = posts.document(parent).get().to_dict()
     tochange = pdoc
     if target > 0:
         tochange = pdoc['answers'][target-1]
-    tochange['points'] += 1
-    commend(tochange['author'])
+    if addr not in tochange['voters']:
+        tochange['voters'].append(addr)
+        msg = f'{addr} liked your post or comment!'
+        commend(tochange['author'],msg)
     posts.document(parent).set(pdoc)
     return "OK",200
 
 @app.route('/api/leaderboard',methods=['GET'])
 def leaderboard():
-    userdict = {}
-    pointLeaderboard = {}
-    for x in users:
-        userdict[x['username']] = x['helpPoints']
-    count = 0;
-    for i in userdict.items().sort(key=lambda y: y[1],reverse=True):
-        count += 1
-        pointLeaderboard[count] = i
-    return {results: pointLeaderboard}
+    def makeSummary(user):
+        return {"points": user.get('helpPoints'), 'id': user.get('username')}
+    return {"result": [makeSummary(i) for i in users.order_by('helpPoints', direction=firestore.Query.DESCENDING).stream()] }
 
 @app.route('/api/submitRequest', methods=['POST'])
 def submitRequest():
     #TODO
-    user = request.json['id']
+    #user = request.json['id']
+    print("TODO")
 
 @app.route('/api/status', methods=['GET'])
 def status():
-    #TODO
-    user = request.json['id']
+    #TODO: fail more safely.
+    addr = uid_to_email(request.args['uid'])
+    you = user_from_email(addr)
+    return {"result": you.get('status'), "points": you.get('helpPoints')}
+
 
 if __name__ == "__main__":
     app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 8080)))
