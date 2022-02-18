@@ -7,7 +7,7 @@ function Leaderboard() {
     <div className="Leaderboard">
       <Container fluid className="vh 100">
         <h2>Leaderboard</h2>
-        <LeaderboardEntry name="One" points="5" />
+        <LeaderboardEntry name="One" points={5} />
       </Container>
     </div>
   );

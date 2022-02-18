@@ -1,15 +1,23 @@
-import React from 'react';
+import { React, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Nav, NavDropdown, Navbar, Container } from 'react-bootstrap';
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
-import { getAuth, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth';
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  setPersistence,
+  browserLocalPersistence,
+  onAuthStateChanged,
+  signOut,
+} from 'firebase/auth';
 
 import Help from './pages/Help';
 import Home from './pages/Home/Home';
 import Leaderboard from './pages/Leaderboard';
 import ProjectSubmission from './pages/ProjectSubmission';
-import Profile from './pages/Profile/Profile'
+import Profile from './pages/Profile/Profile';
 import './App.css';
 import logo from './logo.svg';
 
@@ -36,7 +44,32 @@ const provider = new GoogleAuthProvider();
 const auth = getAuth();
 
 function login() {
-  signInWithRedirect(auth, provider);
+  setPersistence(auth, browserLocalPersistence).then(() => {
+    signInWithPopup(auth, provider)
+      .then(result => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        // The signed-in user info.
+        const { user } = result.user;
+        // ...
+        window.location.reload();
+      })
+      .catch(error => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+      });
+  });
+}
+
+function logout() {
+  signOut(auth);
+  window.location.reload();
 }
 
 function grab() {
@@ -80,6 +113,16 @@ switch (currentURL.pathname) {
 }
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [loadedAuthUI, setLoadedAuthUI] = useState(false);
+  useEffect(() => {
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        setLoggedIn(true);
+      }
+      setLoadedAuthUI(true);
+    });
+  });
   return (
     <div className="App">
       <BrowserRouter>
@@ -107,15 +150,40 @@ function App() {
                 <Nav.Link href="/help" active={helpActive}>
                   Need Help?
                 </Nav.Link>
+              </Nav>
+              {loadedAuthUI && !loggedIn ? (
                 <button
-                  onClick={login}
-                  type="button"
+                  id="auth-button"
                   className="btn btn-warning"
                   style={{ marginLeft: '0.5rem' }}
+                  type="button"
+                  onClick={() => {
+                    login();
+                    setLoggedIn(true);
+                  }}
                 >
                   Login
                 </button>
-              </Nav>
+              ) : (
+                <NavDropdown
+                  id="user-menu"
+                  title={
+                    loadedAuthUI && auth.currentUser ? `Hi, ${auth.currentUser.displayName}` : ''
+                  }
+                >
+                  <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
+                  <button
+                    type="button"
+                    className="btn m-1 p-1"
+                    onClick={() => {
+                      logout();
+                      setLoggedIn(false);
+                    }}
+                  >
+                    Log Out
+                  </button>
+                </NavDropdown>
+              )}
             </Navbar.Collapse>
           </Container>
         </Navbar>
@@ -124,7 +192,7 @@ function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/project-submission" element={<ProjectSubmission />} />
           <Route path="/help" element={<Help />} />
-          <Route path="/profile" element={<Profile/>}/>
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </BrowserRouter>
     </div>

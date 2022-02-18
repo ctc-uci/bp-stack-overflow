@@ -68,6 +68,4 @@ node_modules/
 # dotenv environment variables file
 .env
 
-# Python Virtual environments and caches
-server/venv
-server/__pycache__
+.vscode/
