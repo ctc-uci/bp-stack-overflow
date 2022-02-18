@@ -1,0 +1,43 @@
+.avatar {
+  height: 160px;
+  width: 160px;
+}
+
+.avatarContainer {
+  display: flex;
+}
+
+.profileBanner{
+  display: flex;
+  justify-content: space-between;
+  padding: 50px 100px 50px 100px;
+}
+
+.avatarText {
+  padding-top: 15px;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.avatarName {
+  font-size: 36px;
+  font-weight: 700px;
+}
+
+.avatarSub {
+  font-size: 20px;
+}
+
+.editProfileButton{
+  margin-top: 80px;
+  height: 50px;
+  width: 200px;
+  font-size: 18px;
+  border: none;
+}
+
+.editProfileButton:hover {
+  background-color: #6331d8;
+  color: white;
+}

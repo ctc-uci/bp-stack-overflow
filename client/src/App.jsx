@@ -9,6 +9,7 @@ import Help from './pages/Help';
 import Home from './pages/Home/Home';
 import Leaderboard from './pages/Leaderboard';
 import ProjectSubmission from './pages/ProjectSubmission';
+import Profile from './pages/Profile/Profile'
 import './App.css';
 import logo from './logo.svg';
 
@@ -123,6 +124,7 @@ function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/project-submission" element={<ProjectSubmission />} />
           <Route path="/help" element={<Help />} />
+          <Route path="/profile" element={<Profile/>}/>
         </Routes>
       </BrowserRouter>
     </div>
