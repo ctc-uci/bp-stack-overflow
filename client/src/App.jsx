@@ -18,6 +18,7 @@ import Home from './pages/Home/Home';
 import Leaderboard from './pages/Leaderboard';
 import ProjectSubmission from './pages/ProjectSubmission';
 import Profile from './pages/Profile/Profile';
+import ViewPost from './pages/ViewPost/ViewPost';
 import './App.css';
 import logo from './logo.svg';
 
@@ -70,26 +71,6 @@ function login() {
 function logout() {
   signOut(auth);
   window.location.reload();
-}
-
-function grab() {
-  const req = new XMLHttpRequest();
-  const url = '/api/inc';
-  req.open('GET', url);
-  req.send();
-  req.onload = () => {
-    document.getElementById('inc').innerHTML = req.responseText;
-  };
-}
-
-function loadPosts() {
-  const req = new XMLHttpRequest();
-  const url = '/api/read';
-  req.open('GET', url);
-  req.send();
-  req.onload = () => {
-    document.getElementById('posts').innerHTML = req.responseText;
-  };
 }
 
 let leaderboardActive = '';
@@ -168,7 +149,9 @@ function App() {
                 <NavDropdown
                   id="user-menu"
                   title={
-                    loadedAuthUI && auth.currentUser ? `Hi, ${auth.currentUser.displayName}` : ''
+                    loadedAuthUI && auth.currentUser
+                      ? `Hi, ${auth.currentUser.displayName.split(' ')[0]}`
+                      : ''
                   }
                 >
                   <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
@@ -193,6 +176,7 @@ function App() {
           <Route path="/project-submission" element={<ProjectSubmission />} />
           <Route path="/help" element={<Help />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/post/:id" element={<ViewPost />} />
         </Routes>
       </BrowserRouter>
     </div>

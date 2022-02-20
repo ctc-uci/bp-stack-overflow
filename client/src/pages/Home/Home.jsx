@@ -1,16 +1,78 @@
-import React from 'react';
-import { format } from 'date-fns';
-import Post from '../../components/Post/Post';
+import { React, useState, useEffect } from 'react';
+import { format, parse } from 'date-fns';
+import { Link } from 'react-router-dom';
 import './Home.css';
 
-const days = [];
-for (let i = 0; i < 5; i += 1) {
-  const day = new Date();
-  day.setDate(day.getDate() - i);
-  days.push(format(day, 'eeee LLLL d, yyyy'));
+// CHANGE LATER WHEN DEPLOYING
+const BACKEND_URL = 'http://localhost:8080';
+
+async function grab() {
+  const response = await fetch(`${BACKEND_URL}/api/inc`);
+  return response.json();
+}
+
+async function loadPosts() {
+  // Load posts using JS's built in fetch API
+  // Asynchronously fetch the data as a backend (returned as a Promise object containing the data)
+  const response = await fetch(`${BACKEND_URL}/api/searchPosts?answered=false&page=0+`);
+  return response.json();
+}
+
+async function formatPosts() {
+  // With the Promise object containing the data, group each post by their dates and store
+  // them in an Object (JS's version of a dictionary).
+  const formatted = await loadPosts();
+  const posts = {};
+  formatted.result.forEach(element => {
+    const date = format(parse(element.date, 'MM/dd/yyyy', new Date()), 'LLLL d, yyyy');
+    if (posts[date] == null) {
+      posts[date] = [];
+    }
+    posts[date].push(element);
+  });
+
+  return posts;
 }
 
 function Home() {
+  const [postElements, setPostElements] = useState([]);
+  useEffect(() => {
+    formatPosts().then(posts => {
+      // Build JSX elements for each post and store them in a list.
+      const postElementList = [];
+
+      // We want posts in reverse chronological order.
+      const postKeys = Object.keys(posts);
+      postKeys.sort();
+      postKeys.reverse();
+      postKeys.forEach(key => {
+        const element = (
+          <section key={key} className="date">
+            <h1 className="mb-3">{key}</h1>
+            {posts[key].map(p => {
+              const { id, title, body, author } = p;
+              return (
+                <div key={id} className="post mb-4">
+                  <h2>
+                    {/* <a href={`/post/${id}`}>{title}</a> */}
+                    <Link to={`/post/${id}`}>{title}</Link>
+                  </h2>
+                  <p className="m-0">
+                    <em>{author}</em>
+                  </p>
+                  <p>{body}</p>
+                </div>
+              );
+            })}
+          </section>
+        );
+        postElementList.push(element);
+      });
+
+      // Update postElements so they can be rendered to the screen
+      setPostElements(postElementList);
+    });
+  }, []);
   return (
     <div className="Home">
       <div className="container">
@@ -35,25 +97,7 @@ function Home() {
             rel="search"
           />
         </div>
-        {days.map(date => {
-          return (
-            <div
-              className="row justify-content-md-center"
-              key={date}
-              style={{ marginBottom: '2rem' }}
-            >
-              <div className="col-md-12">
-                <h1 style={{ marginBottom: '1.5rem' }}>{date}</h1>
-                <Post
-                  date="9:00AM"
-                  question="Git Shows Weird Error Message When Committing"
-                  author="Sam Der"
-                  description="I typed in 'git commit -m', but an error message popped up and I can't really..."
-                />
-              </div>
-            </div>
-          );
-        })}
+        {postElements}
       </div>
     </div>
   );
