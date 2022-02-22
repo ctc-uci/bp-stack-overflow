@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Button, Container } from 'react-bootstrap';
+import { Form, Container } from 'react-bootstrap';
 
 function HelpForm() {
   return (
@@ -27,9 +27,9 @@ function HelpForm() {
             <Form.Control as="textarea" rows={4} placeholder="Please provide a description" />
           </Form.Group>
 
-          <Button variant="primary" type="submit">
+          <button type="submit" className="btn purple">
             Submit
-          </Button>
+          </button>
         </Form>
       </Container>
     </div>

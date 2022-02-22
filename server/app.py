@@ -1,4 +1,5 @@
 import os
+import json
 
 from flask import Flask, request
 from flask_cors import CORS
@@ -119,6 +120,9 @@ def status():
     you = user_from_email(addr)
     return {"result": you.get('status'), "points": you.get('helpPoints')}
 
+@app.route('/api/getPost', methods=['GET'])
+def getPost():
+    return json.dumps(posts.document(request.args['post_id']).get().to_dict())
 
 if __name__ == "__main__":
     app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 8080)))

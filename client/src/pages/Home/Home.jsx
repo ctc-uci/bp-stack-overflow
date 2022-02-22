@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import './Home.css';
 
 // CHANGE LATER WHEN DEPLOYING
-const BACKEND_URL = 'http://localhost:8080';
+export const BACKEND_URL = 'http://localhost:8080';
 
 async function grab() {
   const response = await fetch(`${BACKEND_URL}/api/inc`);
@@ -14,7 +14,7 @@ async function grab() {
 async function loadPosts() {
   // Load posts using JS's built in fetch API
   // Asynchronously fetch the data as a backend (returned as a Promise object containing the data)
-  const response = await fetch(`${BACKEND_URL}/api/searchPosts?answered=false&page=0+`);
+  const response = await fetch(`${BACKEND_URL}/api/searchPosts?page=0+`);
   return response.json();
 }
 

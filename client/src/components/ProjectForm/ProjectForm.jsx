@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Button, Col, Row } from 'react-bootstrap';
+import { Form, Col, Row } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
@@ -108,9 +108,9 @@ function ProjectForm() {
               </Col>
             </Form.Group>
 
-            <Button className="float-end" variant="primary" type="submit">
+            <button type="submit" className="btn purple float-end">
               Submit
-            </Button>
+            </button>
           </Form>
         </div>
       )}

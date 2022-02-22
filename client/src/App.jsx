@@ -44,35 +44,6 @@ const analytics = getAnalytics(app);
 const provider = new GoogleAuthProvider();
 const auth = getAuth();
 
-function login() {
-  setPersistence(auth, browserLocalPersistence).then(() => {
-    signInWithPopup(auth, provider)
-      .then(result => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        // The signed-in user info.
-        const { user } = result.user;
-        // ...
-        window.location.reload();
-      })
-      .catch(error => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
-      });
-  });
-}
-
-function logout() {
-  signOut(auth);
-  window.location.reload();
-}
-
 let leaderboardActive = '';
 let projectIdeasActive = '';
 let helpActive = '';
@@ -104,6 +75,38 @@ function App() {
       setLoadedAuthUI(true);
     });
   });
+
+  function login() {
+    setPersistence(auth, browserLocalPersistence).then(() => {
+      signInWithPopup(auth, provider)
+        .then(result => {
+          // This gives you a Google Access Token. You can use it to access the Google API.
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken;
+          // The signed-in user info.
+          const { user } = result.user;
+          // ...
+          window.location.reload();
+        })
+        .catch(error => {
+          // Handle Errors here.
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // The email of the user's account used.
+          // The AuthCredential type that was used.
+          const credential = GoogleAuthProvider.credentialFromError(error);
+          // ...
+        });
+    });
+    setLoggedIn(true);
+  }
+
+  function logout() {
+    signOut(auth);
+    window.location.reload();
+    setLoggedIn(false);
+  }
+
   return (
     <div className="App">
       <BrowserRouter>
@@ -138,10 +141,7 @@ function App() {
                   className="btn btn-warning"
                   style={{ marginLeft: '0.5rem' }}
                   type="button"
-                  onClick={() => {
-                    login();
-                    setLoggedIn(true);
-                  }}
+                  onClick={login}
                 >
                   Login
                 </button>
@@ -155,14 +155,7 @@ function App() {
                   }
                 >
                   <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
-                  <button
-                    type="button"
-                    className="btn m-1 p-1"
-                    onClick={() => {
-                      logout();
-                      setLoggedIn(false);
-                    }}
-                  >
+                  <button type="button" className="btn m-1 p-1" onClick={logout}>
                     Log Out
                   </button>
                 </NavDropdown>
@@ -176,7 +169,10 @@ function App() {
           <Route path="/project-submission" element={<ProjectSubmission />} />
           <Route path="/help" element={<Help />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/post/:id" element={<ViewPost />} />
+          <Route
+            path="/post/:id"
+            element={<ViewPost email={auth.currentUser ? auth.currentUser.email : ''} />}
+          />
         </Routes>
       </BrowserRouter>
     </div>
