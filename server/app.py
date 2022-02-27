@@ -21,6 +21,7 @@ CORS(app)
 
 users = db.collection('users')
 posts = db.collection('posts')
+requests = db.collection('messages')
 
 
 # Helper functions!!
@@ -109,9 +110,8 @@ def leaderboard():
 
 @app.route('/api/submitRequest', methods=['POST'])
 def submitRequest():
-    #TODO
-    #user = request.json['id']
-    print("TODO")
+    requests.add({'body':request.json['body'],'title':request.json['title'], 'sender': request.json['email']})
+    return 'OK',200
 
 @app.route('/api/status', methods=['GET'])
 def status():
@@ -122,7 +122,7 @@ def status():
 
 @app.route('/api/getPost', methods=['GET'])
 def getPost():
-    return json.dumps(posts.document(request.args['post_id']).get().to_dict())
+    return posts.document(request.args['post_id']).get().to_dict()
 
 if __name__ == "__main__":
     app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 8080)))
