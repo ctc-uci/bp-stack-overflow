@@ -13,6 +13,7 @@ import {
   signOut,
 } from 'firebase/auth';
 
+import UserContext from './components/UserContext';
 import Help from './pages/Help';
 import Home from './pages/Home/Home';
 import Leaderboard from './pages/Leaderboard';
@@ -109,72 +110,81 @@ function App() {
 
   return (
     <div className="App">
-      <BrowserRouter>
-        <Navbar bg="light" expand="lg" variant="dark">
-          <Container fluid>
-            <Navbar.Brand href="/">
-              <img src={logo} alt="CTC Overflow Logo" width="100" />
-              CTC Overflow
-            </Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="ms-auto">
-                <Nav.Link href="/leaderboard" active={leaderboardActive}>
-                  Leaderboard
-                </Nav.Link>
-                <NavDropdown title="Projects" id="basic-nav-dropdown">
-                  <NavDropdown.Item href="/view-project/1/">Find Your Anchor</NavDropdown.Item>
-                  <NavDropdown.Item href="/view-project/2/">OC Habitats</NavDropdown.Item>
-                  <NavDropdown.Item href="/view-project/3/">The Literacy Project</NavDropdown.Item>
-                  <NavDropdown.Item href="/view-project/4/">Abound Food Care</NavDropdown.Item>
-                </NavDropdown>
-                <Nav.Link href="/project-submission" active={projectIdeasActive}>
-                  Project Ideas
-                </Nav.Link>
-                <Nav.Link href="/help" active={helpActive}>
-                  Need Help?
-                </Nav.Link>
-              </Nav>
-              {loadedAuthUI && !loggedIn ? (
-                <button
-                  id="auth-button"
-                  className="btn btn-warning"
-                  style={{ marginLeft: '0.5rem' }}
-                  type="button"
-                  onClick={login}
-                >
-                  Login
-                </button>
-              ) : (
-                <NavDropdown
-                  id="user-menu"
-                  title={
-                    loadedAuthUI && auth.currentUser
-                      ? `Hi, ${auth.currentUser.displayName.split(' ')[0]}`
-                      : ''
-                  }
-                >
-                  <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
-                  <button type="button" className="btn m-1 p-1" onClick={logout}>
-                    Log Out
+      <UserContext.Provider value={auth}>
+        <BrowserRouter>
+          <Navbar bg="light" expand="lg" variant="dark">
+            <Container fluid>
+              <Navbar.Brand href="/">
+                <img src={logo} alt="CTC Overflow Logo" width="100" />
+                CTC Overflow
+              </Navbar.Brand>
+              <Navbar.Toggle aria-controls="basic-navbar-nav" />
+              <Navbar.Collapse id="basic-navbar-nav">
+                <Nav className="ms-auto">
+                  <Nav.Link href="/leaderboard" active={leaderboardActive}>
+                    Leaderboard
+                  </Nav.Link>
+                  <NavDropdown title="Projects" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="/view-project/1/">Find Your Anchor</NavDropdown.Item>
+                    <NavDropdown.Item href="/view-project/2/">OC Habitats</NavDropdown.Item>
+                    <NavDropdown.Item href="/view-project/3/">
+                      The Literacy Project
+                    </NavDropdown.Item>
+                    <NavDropdown.Item href="/view-project/4/">Abound Food Care</NavDropdown.Item>
+                  </NavDropdown>
+                  <Nav.Link href="/project-submission" active={projectIdeasActive}>
+                    Project Ideas
+                  </Nav.Link>
+                  <Nav.Link href="/help" active={helpActive}>
+                    Need Help?
+                  </Nav.Link>
+                </Nav>
+                {loadedAuthUI && !loggedIn ? (
+                  <button
+                    id="auth-button"
+                    className="btn btn-warning"
+                    style={{ marginLeft: '0.5rem' }}
+                    type="button"
+                    onClick={login}
+                  >
+                    Login
                   </button>
-                </NavDropdown>
-              )}
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/project-submission" element={<ProjectSubmission />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route
-            path="/post/:id"
-            element={<ViewPost email={auth.currentUser ? auth.currentUser.email : ''} />}
-          />
-        </Routes>
-      </BrowserRouter>
+                ) : (
+                  <NavDropdown
+                    id="user-menu"
+                    title={
+                      loadedAuthUI && auth.currentUser
+                        ? `Hi, ${auth.currentUser.displayName.split(' ')[0]}`
+                        : ''
+                    }
+                  >
+                    <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
+                    <button type="button" className="btn m-1 p-1" onClick={logout}>
+                      Log Out
+                    </button>
+                  </NavDropdown>
+                )}
+              </Navbar.Collapse>
+            </Container>
+          </Navbar>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/project-submission" element={<ProjectSubmission />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route
+              path="/post/:id"
+              element={
+                <ViewPost
+                  email={auth.currentUser ? auth.currentUser.email : ''}
+                  userID={auth.currentUser ? auth.currentUser.uid : ''}
+                />
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </UserContext.Provider>
     </div>
   );
 }
