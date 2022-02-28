@@ -117,7 +117,7 @@ function ViewPost() {
                 />
               </label>
             </div>
-            <input type="submit" className="btn purple" value="Post Response" />
+            <input type="submit" className="btn ctc-btn" value="Post Response" />
           </form>
           <hr />
           {postData.answers ? (

@@ -22,13 +22,13 @@ p {
   font-size: 1.25em;
 }
 
-.purple {
-  background-color: #6331d8 !important;
+.ctc-btn {
+  background-color: #3158d8 !important;
   color: white !important;
 }
 
-.purple:hover {
-  background-color: #341a72 !important;
+.ctc-btn:hover {
+  background-color: #1a2a72 !important;
   color: white !important;
 }
 

@@ -108,7 +108,7 @@ function ProjectForm() {
               </Col>
             </Form.Group>
 
-            <button type="submit" className="btn purple float-end">
+            <button type="submit" className="btn ctc-btn float-end">
               Submit
             </button>
           </Form>

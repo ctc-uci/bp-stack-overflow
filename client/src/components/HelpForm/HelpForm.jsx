@@ -27,7 +27,7 @@ function HelpForm() {
             <Form.Control as="textarea" rows={4} placeholder="Please provide a description" />
           </Form.Group>
 
-          <button type="submit" className="btn purple">
+          <button type="submit" className="btn ctc-btn">
             Submit
           </button>
         </Form>

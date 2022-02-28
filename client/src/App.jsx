@@ -75,7 +75,7 @@ function App() {
       }
       setLoadedAuthUI(true);
     });
-  });
+  }, []);
 
   function login() {
     setPersistence(auth, browserLocalPersistence).then(() => {
@@ -103,9 +103,10 @@ function App() {
   }
 
   function logout() {
-    signOut(auth);
-    window.location.reload();
-    setLoggedIn(false);
+    signOut(auth).then(() => {
+      window.location.reload();
+      setLoggedIn(false);
+    });
   }
 
   return (
