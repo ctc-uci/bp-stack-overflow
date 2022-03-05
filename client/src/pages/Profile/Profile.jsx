@@ -1,8 +1,17 @@
 import React from 'react';
 import { Container, Button } from 'react-bootstrap';
 import './Profile.css';
+import ProfileAnswers from './ProfileTabs/ProfileAnswers'
+import ProfilePosts from './ProfileTabs/ProfilePosts'
+import ProfileProjects from './ProfileTabs/ProfileProjects'
+import ProfileSavedPosts from './ProfileTabs/ProfileSavedPosts'
+import ProfileSettings from './ProfileTabs/ProfileSettings'
 
 function Profile() {
+  const [selectedTab, setSelectedTab] = React.useState('posts');
+
+
+
   return (
     <div>
       <Container fluid className="vh 100">
@@ -47,8 +56,34 @@ function Profile() {
                 d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"
               />
             </svg>
-          </button>
+          </button>z
         </div>
+
+        <div className="tabsContainer">
+          <button className={selectedTab==='posts'? 'selectedTab':'tabs'} onClick={()=>setSelectedTab('posts')}>Posts</button>
+          <button className={selectedTab==='answers'? 'selectedTab':'tabs'} onClick={()=>setSelectedTab('answers')}>Answers</button>
+          <button className={selectedTab==='projects'? 'selectedTab':'tabs'} onClick={()=>setSelectedTab('projects')}>Projects</button>
+          <button className={selectedTab==='savedposts'? 'selectedTab':'tabs'} onClick={()=>setSelectedTab('savedposts')}>Saved Posts</button>
+          <button className={selectedTab==='settings'? 'selectedTab':'tabs'} onClick={()=>setSelectedTab('settings')}>Settings</button>
+        </div>
+        <div className="tabsBottom"></div>
+
+        {selectedTab==='posts' &&
+        <ProfilePosts></ProfilePosts>
+        }
+        {selectedTab==='answers' &&
+        <ProfileAnswers></ProfileAnswers>
+        }
+        {selectedTab==='projects' &&
+        <ProfileProjects></ProfileProjects>
+        }
+        {selectedTab==='savedposts' &&
+        <ProfileSavedPosts></ProfileSavedPosts>
+        }
+        {selectedTab==='settings' &&
+        <ProfileSettings></ProfileSettings>
+        }
+
       </Container>
     </div>
   );
