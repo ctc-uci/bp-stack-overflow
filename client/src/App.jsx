@@ -160,6 +160,7 @@ function App() {
                     }
                   >
                     <NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
+                    <NavDropdown.Item href="/profile">Profile</NavDropdown.Item>
                     <button type="button" className="btn m-1 p-1" onClick={logout}>
                       Log Out
                     </button>

@@ -104,21 +104,6 @@ function ViewPost() {
             <strong>{postData.author}</strong> posted on {postData.date}
           </p>
           <p>{postData.body}</p>
-          <form id="answer-form" onSubmit={postResponse}>
-            <div className="my-2">
-              <label className="form-label w-100" htmlFor="f_response">
-                Response
-                <textarea
-                  className="form-control"
-                  id="f_response"
-                  name="f_response"
-                  rows="5"
-                  required
-                />
-              </label>
-            </div>
-            <input type="submit" className="btn ctc-btn" value="Post Response" />
-          </form>
           <hr />
           {postData.answers ? (
             <section className="answer-section">
@@ -162,6 +147,22 @@ function ViewPost() {
                   </div>
                 );
               })}
+              <hr />
+              <form id="answer-form" onSubmit={postResponse}>
+                <div className="my-2">
+                  <label className="form-label w-100" htmlFor="f_response">
+                    Response
+                    <textarea
+                      className="form-control"
+                      id="f_response"
+                      name="f_response"
+                      rows="5"
+                      required
+                    />
+                  </label>
+                </div>
+                <input type="submit" className="btn ctc-btn" value="Post Response" />
+              </form>
             </section>
           ) : (
             <p>Loading answers...</p>
