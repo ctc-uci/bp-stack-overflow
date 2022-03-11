@@ -21,7 +21,7 @@ import ProjectSubmission from './pages/ProjectSubmission';
 import Profile from './pages/Profile/Profile';
 import ViewPost from './pages/ViewPost/ViewPost';
 import './App.css';
-import logo from './logo.svg';
+import logo from './logo.png';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCMz9kvTfHzop70iJ8wzgY8v7orQhjHADE',
