@@ -20,6 +20,8 @@ import Leaderboard from './pages/Leaderboard';
 import ProjectSubmission from './pages/ProjectSubmission';
 import Profile from './pages/Profile/Profile';
 import ViewPost from './pages/ViewPost/ViewPost';
+import NotFound404 from './pages/404/404';
+
 import './App.css';
 import logo from './logo.png';
 
@@ -184,6 +186,7 @@ function App() {
                 />
               }
             />
+            <Route path="*" element={<NotFound404 />} />
           </Routes>
         </BrowserRouter>
       </UserContext.Provider>
