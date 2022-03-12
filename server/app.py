@@ -1,7 +1,7 @@
 import os
 import json
 
-from flask import Flask, request
+from flask import Flask, request, redirect
 from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials
@@ -36,10 +36,10 @@ def user_from_email(addr):
     res = list(users.where('username','==',addr).stream()) # we may have created a new object for this user if none found, so search again.
     return res[0]
 
-def commend(addr,message):
+def commend(addr,message,delta=1):
     ref = user_from_email(addr)
     r2 = ref.to_dict()
-    r2['helpPoints'] += 1
+    r2['helpPoints'] += delta
     r2['status'].append(message)
     users.document(ref.id).set(r2)
 
@@ -99,6 +99,22 @@ def like():
         tochange['voters'].append(addr)
         msg = f'{addr} liked your post or comment!'
         commend(tochange['author'],msg)
+    posts.document(parent).set(pdoc)
+    return "OK",200
+
+@app.route('/api/unlike',methods=['POST'])
+def unlike():
+    addr = uid_to_email(request.json['uid'])
+    parent = request.json['id']
+    target = int(request.json['index'])
+    pdoc = posts.document(parent).get().to_dict()
+    tochange = pdoc
+    if target > 0:
+        tochange = pdoc['answers'][target-1]
+    if addr in tochange['voters']:
+        tochange['voters'].remove(addr)
+        msg = f'{addr} unliked your post or comment...'
+        commend(tochange['author'],msg,delta=-1)
     posts.document(parent).set(pdoc)
     return "OK",200
 
