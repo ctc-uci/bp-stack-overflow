@@ -121,7 +121,8 @@ def unlike():
 @app.route('/api/leaderboard',methods=['GET'])
 def leaderboard():
     def makeSummary(user):
-        return {"points": user.get('helpPoints'), 'id': user.get('username')}
+        uRecord = auth.get_user_by_email(user.get('username'))
+        return {"points": user.get('helpPoints'), 'id': user.get('username'), 'photo_url': uRecord.photo_url}
     return {"result": [makeSummary(i) for i in users.order_by('helpPoints', direction=firestore.Query.DESCENDING).stream()] }
 
 @app.route('/api/submitRequest', methods=['POST'])
