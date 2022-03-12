@@ -1,0 +1,12 @@
+#upvote, #downvote {
+  display: block;
+  font-size: 2em;
+}
+
+.bi-heart-fill {
+  color: #d8318d;
+}
+
+.answer p {
+  margin: 0;
+}

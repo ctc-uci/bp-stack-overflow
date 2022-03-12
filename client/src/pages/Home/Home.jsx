@@ -1,21 +1,32 @@
 import { React, useState, useEffect } from 'react';
 import { format, parse } from 'date-fns';
 import { Link } from 'react-router-dom';
+import CircularProgress from '@mui/material/CircularProgress';
 import './Home.css';
 
 // CHANGE LATER WHEN DEPLOYING
 export const BACKEND_URL = 'http://localhost:8080';
 
-async function grab() {
-  const response = await fetch(`${BACKEND_URL}/api/inc`);
-  return response.json();
-}
-
 async function loadPosts() {
   // Load posts using JS's built in fetch API
   // Asynchronously fetch the data as a backend (returned as a Promise object containing the data)
-  const response = await fetch(`${BACKEND_URL}/api/searchPosts?page=0+`);
-  return response.json();
+
+  // Timeout request after 10 seconds.
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    return controller.abort();
+  }, 10000);
+  let response = await fetch(`${BACKEND_URL}/api/searchPosts?page=0+`, {
+    signal: controller.signal,
+  }).catch(err => {
+    return 500;
+  });
+
+  response = await response;
+  if (response !== 500) {
+    return response.json();
+  }
+  return {};
 }
 
 async function formatPosts() {
@@ -23,15 +34,16 @@ async function formatPosts() {
   // them in an Object (JS's version of a dictionary).
   const formatted = await loadPosts();
   const posts = {};
-  formatted.result.forEach(element => {
-    const date = format(parse(element.date, 'MM/dd/yyyy', new Date()), 'LLLL d, yyyy');
-    if (posts[date] == null) {
-      posts[date] = [];
-    }
-    posts[date].push(element);
-  });
-
-  return posts;
+  if (Object.keys(formatted).length !== 0) {
+    formatted.result.forEach(element => {
+      const date = format(parse(element.date, 'MM/dd/yyyy', new Date()), 'LLLL d, yyyy');
+      if (posts[date] == null) {
+        posts[date] = [];
+      }
+      posts[date].push(element);
+    });
+  }
+  return {};
 }
 
 function Home() {
@@ -43,34 +55,43 @@ function Home() {
 
       // We want posts in reverse chronological order.
       const postKeys = Object.keys(posts);
-      postKeys.sort();
-      postKeys.reverse();
-      postKeys.forEach(key => {
-        const element = (
-          <section key={key} className="date">
-            <h1 className="mb-3">{key}</h1>
-            {posts[key].map(p => {
-              const { id, title, body, author } = p;
-              return (
-                <div key={id} className="post mb-4">
-                  <h2>
-                    {/* <a href={`/post/${id}`}>{title}</a> */}
-                    <Link to={`/post/${id}`}>{title}</Link>
-                  </h2>
-                  <p className="m-0">
-                    <em>{author}</em>
-                  </p>
-                  <p>{body}</p>
-                </div>
-              );
-            })}
-          </section>
-        );
-        postElementList.push(element);
-      });
+      if (postKeys.length === 0) {
+        setPostElements([
+          <div key="1" className="text-center">
+            <h1>Posts could not be loaded!</h1>
+            <p>Please check your internet connection.</p>
+          </div>,
+        ]);
+      } else {
+        postKeys.sort();
+        postKeys.reverse();
+        postKeys.forEach(key => {
+          const element = (
+            <section key={key} className="date">
+              <h1 className="mb-3">{key}</h1>
+              {posts[key].map(p => {
+                const { id, title, body, author } = p;
+                return (
+                  <div key={id} className="post mb-4">
+                    <h2>
+                      {/* <a href={`/post/${id}`}>{title}</a> */}
+                      <Link to={`/post/${id}`}>{title}</Link>
+                    </h2>
+                    <p className="m-0">
+                      <em>{author}</em>
+                    </p>
+                    <p>{body}</p>
+                  </div>
+                );
+              })}
+            </section>
+          );
+          postElementList.push(element);
+        });
 
-      // Update postElements so they can be rendered to the screen
-      setPostElements(postElementList);
+        // Update postElements so they can be rendered to the screen
+        setPostElements(postElementList);
+      }
     });
   }, []);
   return (
@@ -97,7 +118,13 @@ function Home() {
             rel="search"
           />
         </div>
-        {postElements}
+        {postElements.length === 0 ? (
+          <div className="text-center">
+            <CircularProgress />
+          </div>
+        ) : (
+          postElements
+        )}
       </div>
     </div>
   );

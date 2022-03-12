@@ -1,8 +1,14 @@
 import React from 'react';
 import { Container, Button } from 'react-bootstrap';
 import './Profile.css';
+import ProfileAnswers from './ProfileTabs/ProfileAnswers';
+import ProfilePosts from './ProfileTabs/ProfilePosts';
+import ProfileProjects from './ProfileTabs/ProfileProjects';
+import ProfileSavedPosts from './ProfileTabs/ProfileSavedPosts';
+import ProfileSettings from './ProfileTabs/ProfileSettings';
 
 function Profile() {
+  const [selectedTab, setSelectedTab] = React.useState('posts');
   return (
     <div>
       <Container fluid className="vh 100">
@@ -30,7 +36,6 @@ function Profile() {
               <text className="avatarSub">[xxx] Help Points</text>
             </div>
           </div>
-
           <button type="button" className="editProfileButton">
             Edit Profile
             <svg
@@ -49,6 +54,49 @@ function Profile() {
             </svg>
           </button>
         </div>
+        <div className="tabsContainer">
+          <button
+            type="button"
+            className={selectedTab === 'posts' ? 'selectedTab' : 'tabs'}
+            onClick={() => setSelectedTab('posts')}
+          >
+            Posts
+          </button>
+          <button
+            type="button"
+            className={selectedTab === 'answers' ? 'selectedTab' : 'tabs'}
+            onClick={() => setSelectedTab('answers')}
+          >
+            Answers
+          </button>
+          <button
+            type="button"
+            className={selectedTab === 'projects' ? 'selectedTab' : 'tabs'}
+            onClick={() => setSelectedTab('projects')}
+          >
+            Projects
+          </button>
+          <button
+            type="button"
+            className={selectedTab === 'savedposts' ? 'selectedTab' : 'tabs'}
+            onClick={() => setSelectedTab('savedposts')}
+          >
+            Saved Posts
+          </button>
+          <button
+            type="button"
+            className={selectedTab === 'settings' ? 'selectedTab' : 'tabs'}
+            onClick={() => setSelectedTab('settings')}
+          >
+            Settings
+          </button>
+        </div>
+        <div className="tabsBottom" />
+        {selectedTab === 'posts' && <ProfilePosts />}
+        {selectedTab === 'answers' && <ProfileAnswers />}
+        {selectedTab === 'projects' && <ProfileProjects />}
+        {selectedTab === 'savedposts' && <ProfileSavedPosts />}
+        {selectedTab === 'settings' && <ProfileSettings />}
       </Container>
     </div>
   );
