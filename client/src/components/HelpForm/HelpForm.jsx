@@ -16,6 +16,8 @@ function HelpForm() {
         title,
         body,
       }),
+    }).catch(err => {
+      addQuestion(title, body);
     });
     alert('Question posted successfully!');
   }
