@@ -32,7 +32,7 @@ def uid_to_email(uid):
 def user_from_email(addr):
     res = list(users.where('username','==',addr).stream())
     if not len(res):
-        users.add({"username":addr,"helpPoints":0,"status":[]})
+        users.add({"username":addr,"helpPoints":0,"status":[],'saved':[]})
     res = list(users.where('username','==',addr).stream()) # we may have created a new object for this user if none found, so search again.
     return res[0]
 
@@ -130,12 +130,33 @@ def submitRequest():
     requests.add({'body':request.json['body'],'title':request.json['title'], 'sender': request.json['email']})
     return 'OK',200
 
+@app.route('/api/savePost',methods=['POST'])
+def savePost():
+    addr = uid_to_email(request.json['uid'])
+    ref = user_from_email(addr)
+    r2 = ref.to_dict()
+    r2['saved'].append(request.json['id'])
+    users.document(ref.id).set(r2)
+    return 'OK',200
+
+
+@app.route('/api/unsavePost',methods=['POST'])
+def unsavePost():
+    addr = uid_to_email(request.json['uid'])
+    ref = user_from_email(addr)
+    r2 = ref.to_dict()
+    if request.json['id'] in r2['saved']:
+        r2['saved'].remove(request.json['id'])
+    users.document(ref.id).set(r2)
+    return 'OK',200
+
+
 @app.route('/api/status', methods=['GET'])
 def status():
     #TODO: fail more safely.
     addr = uid_to_email(request.args['uid'])
     you = user_from_email(addr)
-    return {"result": you.get('status'), "points": you.get('helpPoints')}
+    return {"result": you.get('status'), "points": you.get('helpPoints'),'saved': you.get('saved')}
 
 @app.route('/api/getPost', methods=['GET'])
 def getPost():
