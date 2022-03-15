@@ -14,15 +14,15 @@ function ViewPost() {
   // # TODO
   // If the post doesn't exist, we should redirect them back to the home page.
   const auth = useContext(UserContext);
+  const { id } = useParams();
 
   const [postData, setPostData] = useState({});
   const [likedPosts, setLikedPosts] = useState([]);
   const [postVotes, setPostVotes] = useState([]);
+  const [hasSavedPost, setHasSavedPost] = useState(false);
 
-  const { id } = useParams();
   useEffect(() => {
     onAuthStateChanged(auth, user => {
-      console.log(user);
       if (user) {
         fetch(`${BACKEND_URL}/api/getPost?post_id=${id}`).then(res => {
           res.json().then(data => {
@@ -45,7 +45,7 @@ function ViewPost() {
     });
   }, []);
 
-  const postResponse = e => {
+  function postResponse(e) {
     e.preventDefault();
     const response = document.forms['answer-form'].elements.f_response.value;
     fetch(`${BACKEND_URL}/api/makeComment`, {
@@ -61,7 +61,7 @@ function ViewPost() {
     }).then(res => {
       window.location.reload();
     });
-  };
+  }
 
   function updateVoterState(postIndex) {
     if (
@@ -95,11 +95,44 @@ function ViewPost() {
     setPostData(await newPostData.json());
   }
 
+  async function saveUnsavePost(e, shouldSave) {
+    let url = `${BACKEND_URL}/api/`;
+    if (shouldSave) {
+      url += `savePost`;
+    } else {
+      url += `unsavePost`;
+    }
+    await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        uid: auth.currentUser.uid,
+        id,
+      }),
+    });
+    setHasSavedPost(shouldSave);
+  }
+
   return (
     <div className="ViewPost">
       {postData ? (
         <div className="container">
-          <h1>{postData.title}</h1>
+          <div className="row align-items-center">
+            <div className="col-lg-11">
+              <h1>{postData.title}</h1>
+            </div>
+            <div className="col-lg-1 text-end">
+              <button
+                type="button"
+                className="btn btn-none p-0"
+                onClick={e => saveUnsavePost(e, !hasSavedPost)}
+              >
+                <i id="upvote" className="bi bi-bookmark" />
+              </button>
+            </div>
+          </div>
           <p>
             <strong>{postData.author}</strong> posted on {postData.date}
           </p>

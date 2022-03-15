@@ -43,7 +43,7 @@ async function formatPosts() {
       posts[date].push(element);
     });
   }
-  return {};
+  return posts;
 }
 
 function Home() {
