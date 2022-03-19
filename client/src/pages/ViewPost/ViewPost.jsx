@@ -11,36 +11,56 @@ function ViewPost() {
   // We can query the backend to see if the post with the id exists.
   // If it does, we display the details about it on the screen
   //
+  const { id } = useParams();
   // # TODO
   // If the post doesn't exist, we should redirect them back to the home page.
   const auth = useContext(UserContext);
-  const { id } = useParams();
 
   const [postData, setPostData] = useState({});
-  const [likedPosts, setLikedPosts] = useState([]);
-  const [postVotes, setPostVotes] = useState([]);
+  const [likedComments, setLikedComments] = useState([]);
+  const [commentVotes, setCommentVotes] = useState([]);
   const [hasSavedPost, setHasSavedPost] = useState(false);
+
+  async function grabPost() {
+    const post = await fetch(`${BACKEND_URL}/api/getPost?post_id=${id}`);
+    const data = await post.json();
+
+    setPostData(data);
+    const likedCommentsArr = [];
+    const commentVotesArr = [];
+    for (let i = 0; i < data.answers.length; i += 1) {
+      if (data.answers[i].voters.includes(auth.currentUser.email)) {
+        likedCommentsArr.push(1);
+      } else {
+        likedCommentsArr.push(0);
+      }
+      commentVotesArr.push(data.answers[i].voters.length);
+    }
+    setLikedComments(likedCommentsArr);
+    setCommentVotes(commentVotesArr);
+  }
+
+  async function updateSavedState() {
+    const saved = await fetch(`${BACKEND_URL}/api/getSaved`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        uid: auth.currentUser.uid,
+      }),
+    });
+    const savedJSON = await saved.json();
+    if (savedJSON.includes(id)) {
+      setHasSavedPost(true);
+    }
+  }
 
   useEffect(() => {
     onAuthStateChanged(auth, user => {
       if (user) {
-        fetch(`${BACKEND_URL}/api/getPost?post_id=${id}`).then(res => {
-          res.json().then(data => {
-            setPostData(data);
-            const likedPostsArr = [];
-            const postVotesArr = [];
-            for (let i = 0; i < data.answers.length; i += 1) {
-              if (data.answers[i].voters.includes(auth.currentUser.email)) {
-                likedPostsArr.push(1);
-              } else {
-                likedPostsArr.push(0);
-              }
-              postVotesArr.push(data.answers[i].voters.length);
-            }
-            setLikedPosts(likedPostsArr);
-            setPostVotes(postVotesArr);
-          });
-        });
+        grabPost();
+        updateSavedState();
       }
     });
   }, []);
@@ -58,7 +78,7 @@ function ViewPost() {
         body: response,
         parent: id,
       }),
-    }).then(res => {
+    }).then(_ => {
       window.location.reload();
     });
   }
@@ -68,17 +88,17 @@ function ViewPost() {
       postData.answers &&
       !postData.answers[postIndex - 1].voters.includes(auth.currentUser.email)
     ) {
-      const newLikedPosts = Array.from(likedPosts);
-      const newPostVotes = Array.from(postVotes);
+      const newLikedPosts = Array.from(likedComments);
+      const newPostVotes = Array.from(commentVotes);
       newLikedPosts[postIndex - 1] = 1;
       newPostVotes[postIndex - 1] += 1;
-      setLikedPosts(newLikedPosts);
-      setPostVotes(newPostVotes);
+      setLikedComments(newLikedPosts);
+      setCommentVotes(newPostVotes);
     }
   }
 
-  async function likeUnlikePost(postIndex) {
-    fetch(`${BACKEND_URL}/api/like`, {
+  async function likeUnlikeComment(commentIndex) {
+    await fetch(`${BACKEND_URL}/api/like`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -86,22 +106,17 @@ function ViewPost() {
       body: JSON.stringify({
         uid: auth.currentUser.uid,
         id,
-        index: postIndex,
+        index: commentIndex,
       }),
     }).then(res => {
-      updateVoterState(postIndex);
+      updateVoterState(commentIndex);
     });
     const newPostData = await fetch(`${BACKEND_URL}/api/getPost?post_id=${id}`);
     setPostData(await newPostData.json());
   }
 
   async function saveUnsavePost(e, shouldSave) {
-    let url = `${BACKEND_URL}/api/`;
-    if (shouldSave) {
-      url += `savePost`;
-    } else {
-      url += `unsavePost`;
-    }
+    const url = `${BACKEND_URL}/api/${shouldSave ? 'savePost' : 'unsavePost'}`;
     await fetch(url, {
       method: 'POST',
       headers: {
@@ -126,10 +141,14 @@ function ViewPost() {
             <div className="col-lg-1 text-end">
               <button
                 type="button"
-                className="btn btn-none p-0"
+                className="btn btn-none"
                 onClick={e => saveUnsavePost(e, !hasSavedPost)}
               >
-                <i id="upvote" className="bi bi-bookmark" />
+                <i
+                  id="upvote"
+                  className={`bi ${hasSavedPost ? 'bi-bookmark-star-fill' : 'bi-bookmark'}`}
+                  style={{ color: '#6331d8' }}
+                />
               </button>
             </div>
           </div>
@@ -149,11 +168,11 @@ function ViewPost() {
                         <button
                           type="button"
                           className="btn btn-none"
-                          onClick={e => likeUnlikePost(index + 1, e)}
+                          onClick={e => likeUnlikeComment(index + 1, e)}
                         >
                           <i
                             id="upvote"
-                            className={likedPosts[index] ? 'bi bi-heart-fill' : 'bi bi-heart'}
+                            className={likedComments[index] ? 'bi bi-heart-fill' : 'bi bi-heart'}
                           />
                         </button>
                       </div>
@@ -163,8 +182,8 @@ function ViewPost() {
                           <div className="col-lg-6">
                             <p>
                               <strong>
-                                {postVotes[index]}
-                                {postVotes[index] !== 1 ? ' Votes' : ' Vote'}
+                                {commentVotes[index]}
+                                {commentVotes[index] !== 1 ? ' Votes' : ' Vote'}
                               </strong>
                             </p>
                           </div>

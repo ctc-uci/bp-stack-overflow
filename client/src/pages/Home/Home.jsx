@@ -74,7 +74,6 @@ function Home() {
                 return (
                   <div key={id} className="post mb-4">
                     <h2>
-                      {/* <a href={`/post/${id}`}>{title}</a> */}
                       <Link to={`/post/${id}`}>{title}</Link>
                     </h2>
                     <p className="m-0">

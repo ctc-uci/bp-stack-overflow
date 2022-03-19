@@ -162,5 +162,12 @@ def status():
 def getPost():
     return posts.document(request.args['post_id']).get().to_dict()
 
+@app.route('/api/getSaved', methods=['POST'])
+def getSaved():
+    email = uid_to_email(request.json['uid'])
+    user = user_from_email(email)
+    user_doc = user.to_dict()
+    return json.dumps(user_doc['saved'])
+
 if __name__ == "__main__":
     app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 8080)))
