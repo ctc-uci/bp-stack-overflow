@@ -1,7 +1,8 @@
-#upvote, #downvote {
-  display: block;
+#save, #edit {
+  display: inline;
   font-size: 2em;
 }
+
 
 .bi-heart-fill {
   color: #d8318d;

@@ -20,6 +20,7 @@ function ViewPost() {
   const [likedComments, setLikedComments] = useState([]);
   const [commentVotes, setCommentVotes] = useState([]);
   const [hasSavedPost, setHasSavedPost] = useState(false);
+  const [isEditingPost, setIsEditingPost] = useState(false);
 
   async function grabPost() {
     const post = await fetch(`${BACKEND_URL}/api/getPost?post_id=${id}`);
@@ -83,6 +84,23 @@ function ViewPost() {
     });
   }
 
+  function editPost(e) {
+    e.preventDefault();
+    const newPostBody = document.forms['edit-post-form'].elements.f_edited_post.value;
+    fetch(`${BACKEND_URL}/api/editPost`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        document_id: id,
+        body: newPostBody,
+      }),
+    }).then(_ => {
+      window.location.reload();
+    });
+  }
+
   function updateVoterState(postIndex) {
     if (
       postData.answers &&
@@ -135,17 +153,28 @@ function ViewPost() {
       {postData ? (
         <div className="container">
           <div className="row align-items-center">
-            <div className="col-lg-11">
+            <div className="col-lg-10">
               <h1>{postData.title}</h1>
             </div>
-            <div className="col-lg-1 text-end">
+            <div className="col-lg-2 text-end">
+              {!isEditingPost ? (
+                <button
+                  type="button"
+                  className="btn btn-none"
+                  onClick={_ => setIsEditingPost(true)}
+                >
+                  <i id="edit" className="bi bi-pencil" />
+                </button>
+              ) : (
+                ``
+              )}
               <button
                 type="button"
                 className="btn btn-none"
                 onClick={e => saveUnsavePost(e, !hasSavedPost)}
               >
                 <i
-                  id="upvote"
+                  id="save"
                   className={`bi ${hasSavedPost ? 'bi-bookmark-star-fill' : 'bi-bookmark'}`}
                   style={{ color: '#6331d8' }}
                 />
@@ -155,11 +184,30 @@ function ViewPost() {
           <p>
             <strong>{postData.author}</strong> posted on {postData.date}
           </p>
-          <p>{postData.body}</p>
+          {!isEditingPost ? (
+            <p>{postData.body}</p>
+          ) : (
+            <form id="edit-post-form" onSubmit={editPost}>
+              <textarea
+                id="f_edited_post"
+                name="f_edited_post"
+                className="form-control my-3"
+                rows="5"
+                defaultValue={postData.body}
+              />
+              <input type="submit" className="btn ctc-btn" value="Edit" />
+              <button type="button" className="btn btn-none" onClick={e => setIsEditingPost(false)}>
+                Cancel
+              </button>
+            </form>
+          )}
           <hr />
           {postData.answers ? (
             <section className="answer-section">
-              <h2 className="mb-5">{Object.keys(postData.answers).length} Answers</h2>
+              <h2 className="mb-5">
+                {`${Object.keys(postData.answers).length} 
+                ${Object.keys(postData.answers).length === 1 ? 'Answer' : 'Answers'}`}
+              </h2>
               {postData.answers.map((answerObj, index) => {
                 return (
                   <div key={answerObj.author} className="answer mb-5">

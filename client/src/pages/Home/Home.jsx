@@ -1,53 +1,81 @@
 import { React, useState, useEffect } from 'react';
 import { format, parse } from 'date-fns';
 import { Link } from 'react-router-dom';
-import CircularProgress from '@mui/material/CircularProgress';
+import { CircularProgress } from '@mui/material';
 import './Home.css';
 
 // CHANGE LATER WHEN DEPLOYING
 export const BACKEND_URL = 'http://localhost:8080';
 
-async function loadPosts() {
-  // Load posts using JS's built in fetch API
-  // Asynchronously fetch the data as a backend (returned as a Promise object containing the data)
-
-  // Timeout request after 10 seconds.
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    return controller.abort();
-  }, 10000);
-  let response = await fetch(`${BACKEND_URL}/api/searchPosts?page=0+`, {
-    signal: controller.signal,
-  }).catch(err => {
-    return 500;
-  });
-
-  response = await response;
-  if (response !== 500) {
-    return response.json();
-  }
-  return {};
-}
-
-async function formatPosts() {
-  // With the Promise object containing the data, group each post by their dates and store
-  // them in an Object (JS's version of a dictionary).
-  const formatted = await loadPosts();
-  const posts = {};
-  if (Object.keys(formatted).length !== 0) {
-    formatted.result.forEach(element => {
-      const date = format(parse(element.date, 'MM/dd/yyyy', new Date()), 'LLLL d, yyyy');
-      if (posts[date] == null) {
-        posts[date] = [];
-      }
-      posts[date].push(element);
-    });
-  }
-  return posts;
-}
-
 function Home() {
   const [postElements, setPostElements] = useState([]);
+
+  async function loadPosts() {
+    // Load posts using JS's built in fetch API
+    // Asynchronously fetch the data as a backend (returned as a Promise object containing the data)
+
+    // Timeout request after 10 seconds.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      return controller.abort();
+    }, 10000);
+    let response = await fetch(`${BACKEND_URL}/api/searchPosts?page=0+`, {
+      signal: controller.signal,
+    }).catch(err => {
+      return 500;
+    });
+
+    response = await response;
+    if (response !== 500) {
+      return response.json();
+    }
+    return {};
+  }
+
+  async function formatPosts() {
+    // With the Promise object containing the data, group each post by their dates and store
+    // them in an Object (JS's version of a dictionary).
+    const formatted = await loadPosts();
+    const posts = {};
+    if (Object.keys(formatted).length !== 0) {
+      formatted.result.forEach(element => {
+        const date = format(parse(element.date, 'MM/dd/yyyy', new Date()), 'LLLL d, yyyy');
+        if (posts[date] == null) {
+          posts[date] = [];
+        }
+        posts[date].push(element);
+      });
+    }
+    return posts;
+  }
+
+  async function searchPosts(e) {
+    // Note that searches are only executed when the user presses Enter.
+    e.preventDefault();
+    const searchQuery = document.forms['search-form'].elements.f_query.value;
+    const response = await fetch(`${BACKEND_URL}/api/algoliaSearch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: searchQuery,
+      }),
+    });
+    const foundPosts = (await response.json()).hits;
+    const foundPostsElements = foundPosts.map(element => {
+      return (
+        <div key={element.objectID}>
+          <h2>
+            <Link to={element.path}>{element.title}</Link>
+          </h2>
+          <p>{element.body}</p>
+        </div>
+      );
+    });
+    setPostElements(foundPostsElements);
+  }
+
   useEffect(() => {
     formatPosts().then(posts => {
       // Build JSX elements for each post and store them in a list.
@@ -87,36 +115,45 @@ function Home() {
           );
           postElementList.push(element);
         });
+        // Add an event listener to the search input so that if the search
+        // input is cleared, it replaces the search output with the original
+        // content showing all posts.
+        document.getElementById('f_query').addEventListener('search', e => {
+          setPostElements(postElementList);
+        });
 
         // Update postElements so they can be rendered to the screen
         setPostElements(postElementList);
       }
     });
   }, []);
+
   return (
     <div className="Home">
       <div className="container">
-        <div className="input-group w-75 mx-auto my-5">
-          <div className="input-group-text">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="currentColor"
-              className="bi bi-search"
-              viewBox="0 0 16 16"
-            >
-              <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-            </svg>
+        <form id="search-form" onSubmit={searchPosts}>
+          <div className="input-group w-75 mx-auto my-5">
+            <div className="input-group-text">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                className="bi bi-search"
+                viewBox="0 0 16 16"
+              >
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+              </svg>
+            </div>
+            <input
+              type="search"
+              id="f_query"
+              name="f_query"
+              className="form-control"
+              placeholder="Enter a keyword"
+            />
           </div>
-          <input
-            type="search"
-            id="f_query"
-            className="form-control"
-            placeholder="Search"
-            rel="search"
-          />
-        </div>
+        </form>
         {postElements.length === 0 ? (
           <div className="text-center">
             <CircularProgress />

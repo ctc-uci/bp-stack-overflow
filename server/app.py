@@ -1,12 +1,16 @@
-import os
 import json
-
-from flask import Flask, request, redirect
-from flask_cors import CORS
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore,auth
+import os
 from datetime import datetime
+from urllib.parse import urlencode
+
+import firebase_admin
+import requests
+from dotenv import dotenv_values
+from firebase_admin import auth, credentials, firestore
+from flask import Flask, request
+from flask_cors import CORS
+
+config = dotenv_values('.env')
 
 #Initialize important resources
 cred = credentials.ApplicationDefault()
@@ -21,7 +25,7 @@ CORS(app)
 
 users = db.collection('users')
 posts = db.collection('posts')
-requests = db.collection('messages')
+messages = db.collection('messages')
 
 
 # Helper functions!!
@@ -47,6 +51,12 @@ def commend(addr,message,delta=1):
 def commendMethod():
     uid = uid_to_email(request.json['uid'])
     commend(request.json['id'],request.json['message'])
+    return "OK",200
+
+@app.route('/api/editPost', methods=['POST'])
+def editPost():
+    document_id = request.json['document_id']
+    posts.document(document_id).update({u'body': request.json['body']})
     return "OK",200
 
 @app.route('/api/makePost',methods=['POST'])
@@ -85,6 +95,16 @@ def searchPosts():
     q = q.limit(resCount).offset(int(request.args['page'])*resCount)
     results = [makeDict(i) for i in q.stream()]
     return {'result': results}
+
+@app.route('/api/algoliaSearch', methods=['POST'])
+def algoliaSearch():
+    url = 'https://UWK1WLGVN7.algolia.net/1/indexes/postsIndex/query'
+    headers = {
+        'X-Algolia-Application-Id': config['ALGOLIA_APP_ID'],
+        'X-Algolia-API-Key': config['ALGOLIA_API_KEY']
+    }
+    payload = {'params': urlencode({'query': request.json['query']})}
+    return requests.post(url, data=json.dumps(payload), headers=headers).json()
 
 @app.route('/api/like',methods=['POST'])
 def like():
@@ -127,7 +147,7 @@ def leaderboard():
 
 @app.route('/api/submitRequest', methods=['POST'])
 def submitRequest():
-    requests.add({'body':request.json['body'],'title':request.json['title'], 'sender': request.json['email']})
+    messages.add({'body':request.json['body'],'title':request.json['title'], 'sender': request.json['email']})
     return 'OK',200
 
 @app.route('/api/savePost',methods=['POST'])
