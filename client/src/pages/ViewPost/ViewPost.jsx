@@ -75,7 +75,9 @@ function ViewPost() {
     onAuthStateChanged(auth, user => {
       if (user) {
         grabPost();
-        updateSavedState();
+        if (loadedPost) {
+          updateSavedState();
+        }
       }
     });
   }, []);
@@ -196,7 +198,7 @@ function ViewPost() {
 
   return (
     <div className="ViewPost">
-      {postData ? (
+      {postData && loadedPost ? (
         <div className="container">
           <div className="row align-items-center">
             <div className="col-lg-10">
@@ -215,7 +217,7 @@ function ViewPost() {
           {postData.answers ? (
             <section className="answer-section">
               <h2 className="mb-5">
-                {`${Object.keys(postData.answers).length} 
+                {`${Object.keys(postData.answers).length}
                 ${Object.keys(postData.answers).length === 1 ? 'Answer' : 'Answers'}`}
               </h2>
               {postData.answers.map((answerObj, index) => {
