@@ -16,6 +16,7 @@ function ViewPost() {
   // If the post doesn't exist, we should redirect them back to the home page.
   const auth = useContext(UserContext);
 
+  const [loadedPost, setLoadedPost] = useState(false);
   const [postData, setPostData] = useState({});
   const [likedComments, setLikedComments] = useState([]);
   const [commentVotes, setCommentVotes] = useState([]);
@@ -23,22 +24,35 @@ function ViewPost() {
   const [isEditingPost, setIsEditingPost] = useState(false);
 
   async function grabPost() {
-    const post = await fetch(`${BACKEND_URL}/api/getPost?post_id=${id}`);
-    const data = await post.json();
+    // Timeout request after 10 seconds.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      return controller.abort();
+    }, 10000);
 
-    setPostData(data);
-    const likedCommentsArr = [];
-    const commentVotesArr = [];
-    for (let i = 0; i < data.answers.length; i += 1) {
-      if (data.answers[i].voters.includes(auth.currentUser.email)) {
-        likedCommentsArr.push(1);
-      } else {
-        likedCommentsArr.push(0);
+    let post = await fetch(`${BACKEND_URL}/api/getPost?post_id=${id}`, {
+      signal: controller.signal,
+    }).catch(_ => {
+      return 500;
+    });
+    post = await post;
+    if (post !== 500) {
+      const data = post.json();
+      setPostData(data);
+      setLoadedPost(true);
+      const likedCommentsArr = [];
+      const commentVotesArr = [];
+      for (let i = 0; i < data.answers.length; i += 1) {
+        if (data.answers[i].voters.includes(auth.currentUser.email)) {
+          likedCommentsArr.push(1);
+        } else {
+          likedCommentsArr.push(0);
+        }
+        commentVotesArr.push(data.answers[i].voters.length);
       }
-      commentVotesArr.push(data.answers[i].voters.length);
+      setLikedComments(likedCommentsArr);
+      setCommentVotes(commentVotesArr);
     }
-    setLikedComments(likedCommentsArr);
-    setCommentVotes(commentVotesArr);
   }
 
   async function updateSavedState() {
@@ -148,6 +162,38 @@ function ViewPost() {
     setHasSavedPost(shouldSave);
   }
 
+  const editIcon = (
+    <button type="button" className="btn btn-none" onClick={_ => setIsEditingPost(true)}>
+      <i id="edit" className="bi bi-pencil" />
+    </button>
+  );
+
+  const editForm = (
+    <form id="edit-post-form" onSubmit={editPost}>
+      <textarea
+        id="f_edited_post"
+        name="f_edited_post"
+        className="form-control my-3"
+        rows="5"
+        defaultValue={postData.body}
+      />
+      <input type="submit" className="btn ctc-btn" value="Edit" />
+      <button type="button" className="btn btn-none" onClick={e => setIsEditingPost(false)}>
+        Cancel
+      </button>
+    </form>
+  );
+
+  const bookmarkIcon = (
+    <button type="button" className="btn btn-none" onClick={e => saveUnsavePost(e, !hasSavedPost)}>
+      <i
+        id="save"
+        className={`bi ${hasSavedPost ? 'bi-bookmark-star-fill' : 'bi-bookmark'}`}
+        style={{ color: '#6331d8' }}
+      />
+    </button>
+  );
+
   return (
     <div className="ViewPost">
       {postData ? (
@@ -157,50 +203,14 @@ function ViewPost() {
               <h1>{postData.title}</h1>
             </div>
             <div className="col-lg-2 text-end">
-              {!isEditingPost ? (
-                <button
-                  type="button"
-                  className="btn btn-none"
-                  onClick={_ => setIsEditingPost(true)}
-                >
-                  <i id="edit" className="bi bi-pencil" />
-                </button>
-              ) : (
-                ``
-              )}
-              <button
-                type="button"
-                className="btn btn-none"
-                onClick={e => saveUnsavePost(e, !hasSavedPost)}
-              >
-                <i
-                  id="save"
-                  className={`bi ${hasSavedPost ? 'bi-bookmark-star-fill' : 'bi-bookmark'}`}
-                  style={{ color: '#6331d8' }}
-                />
-              </button>
+              {!isEditingPost ? editIcon : ``}
+              {bookmarkIcon}
             </div>
           </div>
           <p>
             <strong>{postData.author}</strong> posted on {postData.date}
           </p>
-          {!isEditingPost ? (
-            <p>{postData.body}</p>
-          ) : (
-            <form id="edit-post-form" onSubmit={editPost}>
-              <textarea
-                id="f_edited_post"
-                name="f_edited_post"
-                className="form-control my-3"
-                rows="5"
-                defaultValue={postData.body}
-              />
-              <input type="submit" className="btn ctc-btn" value="Edit" />
-              <button type="button" className="btn btn-none" onClick={e => setIsEditingPost(false)}>
-                Cancel
-              </button>
-            </form>
-          )}
+          {!isEditingPost ? <p>{postData.body}</p> : editForm}
           <hr />
           {postData.answers ? (
             <section className="answer-section">

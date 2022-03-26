@@ -179,7 +179,7 @@ function App() {
             <Route path="/help" element={<Help />} />
             <Route path="/profile" element={<Profile />} />
             <Route
-              path="/post/:id"
+              path="/posts/:id"
               element={
                 <ViewPost
                   email={auth.currentUser ? auth.currentUser.email : ''}
