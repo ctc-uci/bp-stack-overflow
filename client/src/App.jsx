@@ -113,6 +113,7 @@ function App() {
 
   return (
     <div className="App">
+      {/* Allows the auth variable to exist across pages */}
       <UserContext.Provider value={auth}>
         <BrowserRouter>
           <Navbar bg="light" expand="lg" variant="dark">
@@ -178,7 +179,7 @@ function App() {
             <Route path="/help" element={<Help />} />
             <Route path="/profile" element={<Profile />} />
             <Route
-              path="/post/:id"
+              path="/posts/:id"
               element={
                 <ViewPost
                   email={auth.currentUser ? auth.currentUser.email : ''}
