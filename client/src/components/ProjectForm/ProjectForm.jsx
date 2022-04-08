@@ -1,14 +1,27 @@
+import './ProjectForm.css';
 import React from 'react';
 import { Form, Col, Row } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
 const schema = Yup.object().shape({
-  name: Yup.string().required(),
-  org: Yup.string().required(),
-  email: Yup.string().required(),
-  projectName: Yup.string().required(),
-  projectDesc: Yup.string().required(),
+  name: Yup.string()
+    .min(2, '*Names must have at least 2 characters')
+    .max(100, "*Names can't be longer than 100 characters")
+    .required('*Name is required'),
+  org: Yup.string()
+    .max(100, "*Organization Name can't be longer than 100 characters")
+    .required('*Organization Name is required'),
+  email: Yup.string()
+    .email('*Must be a valid email address')
+    .max(100, "*Names can't be longer than 100 characters")
+    .required('*Email is required'),
+  projectName: Yup.string()
+    .max(100, "*Project Name can't be longer than 100 characters")
+    .required('*Project Name is required'),
+  projectDesc: Yup.string()
+    .max(500, "*Project Description can't be longer than 500 characters")
+    .required('*Project Description is required'),
 });
 
 function ProjectForm() {
@@ -26,6 +39,7 @@ function ProjectForm() {
     >
       {({ handleSubmit, handleChange, handleBlur, values, touched, isValid, errors }) => (
         <div className="ProjectForm">
+          {console.log(values)}
           <Form noValidate onSubmit={handleSubmit}>
             <Form.Group as={Row} className="mb-3" controlId="formName">
               <Form.Label column sm={3}>
@@ -38,7 +52,8 @@ function ProjectForm() {
                   name="name"
                   value={values.name}
                   onChange={handleChange}
-                  isValid={touched.name && !errors.name}
+                  // isValid={touched.name && !errors.name}
+                  className={touched.name && errors.name ? 'error' : null}
                 />
               </Col>
             </Form.Group>
