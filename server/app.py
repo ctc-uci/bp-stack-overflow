@@ -55,8 +55,18 @@ def commendMethod():
 
 @app.route('/api/editPost', methods=['POST'])
 def editPost():
+    uid = uid_to_email(request.json['uid'])
     document_id = request.json['document_id']
+    assert posts.document(document_id)['author'] == uid
     posts.document(document_id).update({u'body': request.json['body']})
+    return "OK",200
+
+@app.route('/api/deletePost', methods=['POST'])
+def deletePost():
+    uid = uid_to_email(request.json['uid'])
+    document_id = request.json['document_id']
+    assert posts.document(document_id)['author'] == uid
+    posts.document(document_id).delete()
     return "OK",200
 
 @app.route('/api/makePost',methods=['POST'])
