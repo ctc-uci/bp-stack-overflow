@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
+import ReactMarkdown from 'react-markdown';
 import { BACKEND_URL } from '../Home/Home';
 import UserContext from '../../components/UserContext';
 
@@ -20,8 +21,10 @@ function ViewPost() {
   const [postData, setPostData] = useState({});
   const [likedComments, setLikedComments] = useState([]);
   const [commentVotes, setCommentVotes] = useState([]);
+  const [isEditingComments, setIsEditingComments] = useState([]);
   const [hasSavedPost, setHasSavedPost] = useState(false);
   const [isEditingPost, setIsEditingPost] = useState(false);
+  const [answerText, setAnswerText] = useState('');
 
   async function grabPost() {
     // Timeout request after 10 seconds.
@@ -36,12 +39,15 @@ function ViewPost() {
       return 500;
     });
     post = await post;
+
+    // Update state variables if there is a proper response.
     if (post !== 500) {
-      const data = post.json();
+      const data = await post.json();
       setPostData(data);
       setLoadedPost(true);
       const likedCommentsArr = [];
       const commentVotesArr = [];
+      const isEditingCommentArr = [];
       for (let i = 0; i < data.answers.length; i += 1) {
         if (data.answers[i].voters.includes(auth.currentUser.email)) {
           likedCommentsArr.push(1);
@@ -49,9 +55,11 @@ function ViewPost() {
           likedCommentsArr.push(0);
         }
         commentVotesArr.push(data.answers[i].voters.length);
+        isEditingCommentArr.push(false);
       }
       setLikedComments(likedCommentsArr);
       setCommentVotes(commentVotesArr);
+      setIsEditingComments(isEditingCommentArr);
     }
   }
 
@@ -205,7 +213,7 @@ function ViewPost() {
               <h1>{postData.title}</h1>
             </div>
             <div className="col-lg-2 text-end">
-              {!isEditingPost ? editIcon : ``}
+              {!isEditingPost && auth.currentUser.email === postData.author ? editIcon : ``}
               {bookmarkIcon}
             </div>
           </div>
@@ -221,8 +229,12 @@ function ViewPost() {
                 ${Object.keys(postData.answers).length === 1 ? 'Answer' : 'Answers'}`}
               </h2>
               {postData.answers.map((answerObj, index) => {
+                let randKey = '';
+                for (let i = 0; i < 16; i += 1) {
+                  randKey += Math.floor(Math.random() * 10);
+                }
                 return (
-                  <div key={answerObj.author} className="answer mb-5">
+                  <div key={randKey} className="answer mb-5">
                     <div className="row gx-5 align-items-center">
                       <div className="col-md-1">
                         <button
@@ -236,8 +248,8 @@ function ViewPost() {
                           />
                         </button>
                       </div>
-                      <div className="col-md-11">
-                        <p className="m-0">{answerObj.body}</p>
+                      <div className="col-md-10">
+                        <ReactMarkdown skipHtml>{answerObj.body}</ReactMarkdown>
                         <div className="row">
                           <div className="col-lg-6">
                             <p>
@@ -269,9 +281,12 @@ function ViewPost() {
                       id="f_response"
                       name="f_response"
                       rows="5"
+                      onChange={e => setAnswerText(e.target.value)}
+                      value={answerText}
                       required
                     />
                   </label>
+                  <ReactMarkdown skipHtml>{answerText}</ReactMarkdown>
                 </div>
                 <input type="submit" className="btn ctc-btn" value="Post Response" />
               </form>
