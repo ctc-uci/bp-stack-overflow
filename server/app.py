@@ -57,7 +57,7 @@ def commendMethod():
 def editPost():
     uid = uid_to_email(request.json['uid'])
     document_id = request.json['document_id']
-    assert posts.document(document_id)['author'] == uid
+    assert posts.document(document_id).get().to_dict()['author'] == uid
     posts.document(document_id).update({u'body': request.json['body']})
     return "OK",200
 
@@ -65,8 +65,30 @@ def editPost():
 def deletePost():
     uid = uid_to_email(request.json['uid'])
     document_id = request.json['document_id']
-    assert posts.document(document_id)['author'] == uid
+    assert posts.document(document_id).get().to_dict()['author'] == uid
     posts.document(document_id).delete()
+    return "OK",200
+
+@app.route('/api/editComment',methods=['POST'])
+def editComment():
+    uid = uid_to_email(request.json['uid'])
+    parent = request.json['document_id']
+    index = int(request.json['index'])
+    pdoc = posts.document(parent).get().to_dict()
+    assert pdoc['answers'][index]['author'] == uid
+    pdoc['answers'][index]['body'] = request.json['body']
+    posts.document(parent).set(pdoc)
+    return "OK",200
+
+@app.route('/api/deleteComment',methods=['POST'])
+def deleteComment():
+    uid = uid_to_email(request.json['uid'])
+    parent = request.json['document_id']
+    index = int(request.json['index'])
+    pdoc = posts.document(parent).get().to_dict()
+    assert pdoc['answers'][index]['author'] == uid
+    pdoc['answers'].pop(index)
+    posts.document(parent).set(pdoc)
     return "OK",200
 
 @app.route('/api/makePost',methods=['POST'])
