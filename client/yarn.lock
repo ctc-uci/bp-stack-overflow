@@ -4598,6 +4598,13 @@ algoliasearch-helper@^3.7.4:
   dependencies:
     "@algolia/events" "^4.0.1"
 
+algoliasearch-helper@^3.8.0:
+  version "3.8.2"
+  resolved "https://registry.yarnpkg.com/algoliasearch-helper/-/algoliasearch-helper-3.8.2.tgz#35726dc6d211f49dbab0bf6d37b4658165539523"
+  integrity sha512-AXxiF0zT9oYwl8ZBgU/eRXvfYhz7cBA5YrLPlw9inZHdaYF0QEya/f1Zp1mPYMXc1v6VkHwBq4pk6/vayBLICg==
+  dependencies:
+    "@algolia/events" "^4.0.1"
+
 algoliasearch@^4.13.0:
   version "4.13.0"
   resolved "https://registry.yarnpkg.com/algoliasearch/-/algoliasearch-4.13.0.tgz#e36611fda82b1fc548c156ae7929a7f486e4b663"
@@ -7133,6 +7140,16 @@ elliptic@^6.5.3:
     inherits "^2.0.4"
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
+
+emailjs-com@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/emailjs-com/-/emailjs-com-3.2.0.tgz#a53cb22f1bc433c701c84c53d8b56eefd5ce7111"
+  integrity sha512-Prbz3E1usiAwGjMNYRv6EsJ5c373cX7/AGnZQwOfrpNJrygQJ15+E9OOq4pU8yC977Z5xMetRfc3WmDX6RcjAA==
+
+emailjs@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/emailjs/-/emailjs-4.0.0.tgz#e439dfa4136c6ef2a7d9f00d1a1f595b9cc16f87"
+  integrity sha512-t6LqDjGZnIkM+1ghsgazsaZbXnK7Yt+0Qjx6aCK3EGosenTC3w3aoO5wkWuDiBmdl2z9H/zCnTbKJPjTJripkg==
 
 emittery@^0.7.1:
   version "0.7.2"
@@ -13472,27 +13489,27 @@ react-inspector@^5.1.0:
     is-dom "^1.0.0"
     prop-types "^15.0.0"
 
-react-instantsearch-core@6.23.0:
-  version "6.23.0"
-  resolved "https://registry.yarnpkg.com/react-instantsearch-core/-/react-instantsearch-core-6.23.0.tgz#13d661435a8eaa4fd251ca09279f985ff64fd2e0"
-  integrity sha512-vsNtxX7olb3WoQveZ6jK9EnRfoyVp/RRdmNbf21RaeaY8QNTs6bscAgKekVyQhydncnquy15I8MKlZa0syr75A==
+react-instantsearch-core@6.23.3:
+  version "6.23.3"
+  resolved "https://registry.yarnpkg.com/react-instantsearch-core/-/react-instantsearch-core-6.23.3.tgz#d1a7f5ec0dd615557720699e0d2374718b1ae9a1"
+  integrity sha512-Y8MdBlx1v2mF2omQdUlP6hQAbUse9vu65aRMuSWz4YU/KKzO3XGRenuOWeyL7QrgWVnYJ8n/Ed73O6bXasae7A==
   dependencies:
     "@babel/runtime" "^7.1.2"
-    algoliasearch-helper "^3.7.4"
+    algoliasearch-helper "^3.8.0"
     prop-types "^15.6.2"
     react-fast-compare "^3.0.0"
 
-react-instantsearch-dom@^6.23.0:
-  version "6.23.0"
-  resolved "https://registry.yarnpkg.com/react-instantsearch-dom/-/react-instantsearch-dom-6.23.0.tgz#384de21335f6ba4a961b94105115bd21f19de205"
-  integrity sha512-N3t7vqXnC+T9Hg9nHRn4KRIyPbKuS6vucg9NLua6z629t10fsjU/WOFGMspJhmmg5yfeccsBkMQl1TJ8iksFgA==
+react-instantsearch-dom@^6.23.3:
+  version "6.23.3"
+  resolved "https://registry.yarnpkg.com/react-instantsearch-dom/-/react-instantsearch-dom-6.23.3.tgz#afd575e8ebea5becbd484df359a589d4be0ea99a"
+  integrity sha512-SrO34OzUMMXul4FXLrj/+NlH6OdDIgfJmDFtrmnuDPqs/fRgE5RG24d79PM+6WjufONo2GfkDaE/OJ1fBhVdkQ==
   dependencies:
     "@babel/runtime" "^7.1.2"
-    algoliasearch-helper "^3.7.4"
+    algoliasearch-helper "^3.8.0"
     classnames "^2.2.5"
     prop-types "^15.6.2"
     react-fast-compare "^3.0.0"
-    react-instantsearch-core "6.23.0"
+    react-instantsearch-core "6.23.3"
 
 react-instantsearch-hooks@^6.23.0:
   version "6.23.0"

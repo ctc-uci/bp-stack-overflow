@@ -1,11 +1,12 @@
 import './ProjectForm.css';
-import React from 'react';
+import React, { useState } from 'react';
 import { Form, Col, Row } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import * as emailjs from 'emailjs-com';
 
 const schema = Yup.object().shape({
-  name: Yup.string()
+  fromName: Yup.string()
     .min(2, '*Names must have at least 2 characters')
     .max(100, "*Names can't be longer than 100 characters")
     .required('*Name is required'),
@@ -28,9 +29,16 @@ function ProjectForm() {
   return (
     <Formik
       validationSchema={schema}
-      onSubmit={console.log}
+      onSubmit={values => {
+        console.log('values', values);
+        emailjs
+          .send('service_8df5nsq', 'template_vnugtuo', values, 'HRp4nelN42ICeNJkU')
+          .then(() => {
+            console.log('email sent');
+          });
+      }}
       initialValues={{
-        name: '',
+        fromName: '',
         org: '',
         email: '',
         projectName: '',
@@ -49,11 +57,11 @@ function ProjectForm() {
                 <Form.Control
                   type="text"
                   placeholder="Enter name"
-                  name="name"
-                  value={values.name}
+                  name="fromName"
+                  value={values.fromName}
                   onChange={handleChange}
-                  // isValid={touched.name && !errors.name}
-                  className={touched.name && errors.name ? 'error' : null}
+                  isValid={touched.fromName && !errors.fromName}
+                  className={touched.fromName && errors.fromName ? 'error' : null}
                 />
               </Col>
             </Form.Group>
