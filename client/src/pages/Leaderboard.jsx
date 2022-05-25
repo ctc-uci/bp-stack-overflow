@@ -10,7 +10,6 @@ function Leaderboard() {
     // The incoming data should already be sorted in desc order
     const response = await fetch(`${BACKEND_URL}/api/leaderboard`);
     const data = await response.json();
-    console.log(data.result);
     setUsers(data.result);
   }
 

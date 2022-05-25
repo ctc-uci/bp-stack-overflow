@@ -2,6 +2,12 @@ import React from 'react';
 import { connectSearchBox } from 'react-instantsearch-dom';
 import PropTypes from 'prop-types';
 
+/*
+A search box incorporating Algolia's instant search
+
+https://www.algolia.com/doc/api-reference/widgets/search-box/react/
+*/
+
 function SearchBox({ currentRefinement, refine }) {
   return (
     <form noValidate role="search">

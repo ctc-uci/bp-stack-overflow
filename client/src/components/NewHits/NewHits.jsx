@@ -2,6 +2,10 @@ import React from 'react';
 import { connectHits } from 'react-instantsearch-dom';
 import { Link } from 'react-router-dom';
 
+/*
+A hit is an individual search result. Like the NewSearchBox component,
+Hits is modeled after Algolia's Hits.
+*/
 function Hits({ hits }) {
   return hits.map(hit => (
     <div key={hit.objectID} className="hit mb-4">

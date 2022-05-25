@@ -30,12 +30,7 @@ function ProjectForm() {
     <Formik
       validationSchema={schema}
       onSubmit={values => {
-        console.log('values', values);
-        emailjs
-          .send('service_8df5nsq', 'template_vnugtuo', values, 'HRp4nelN42ICeNJkU')
-          .then(() => {
-            console.log('email sent');
-          });
+        emailjs.send('service_8df5nsq', 'template_vnugtuo', values, 'HRp4nelN42ICeNJkU');
       }}
       initialValues={{
         fromName: '',
@@ -47,7 +42,6 @@ function ProjectForm() {
     >
       {({ handleSubmit, handleChange, handleBlur, values, touched, isValid, errors }) => (
         <div className="ProjectForm">
-          {console.log(values)}
           <Form noValidate onSubmit={handleSubmit}>
             <Form.Group as={Row} className="mb-3" controlId="formName">
               <Form.Label column sm={3}>
