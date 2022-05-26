@@ -19,14 +19,19 @@ function ViewPost() {
 
   const [loadedPost, setLoadedPost] = useState(false);
   const [postData, setPostData] = useState({});
-  const [likedComments, setLikedComments] = useState([]);
+  //
+  // This array is an array of 2-arrays. The first element is the number of votes
+  // for that comment and the second is a boolean indicating whether the current
+  // user has liked this comment.
   const [commentVotes, setCommentVotes] = useState([]);
-  const [isEditingComments, setIsEditingComments] = useState([]);
+  const [commentBeingEdited, setCommentBeingEdited] = useState(null);
   const [hasSavedPost, setHasSavedPost] = useState(false);
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [answerText, setAnswerText] = useState('');
 
   async function grabPost() {
+    // Retrieve the post with the associated id on line 15 (the call to useParams())
+    //
     // Timeout request after 10 seconds.
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
@@ -45,25 +50,28 @@ function ViewPost() {
       const data = await post.json();
       setPostData(data);
       setLoadedPost(true);
-      const likedCommentsArr = [];
-      const commentVotesArr = [];
-      const isEditingCommentArr = [];
-      for (let i = 0; i < data.answers.length; i += 1) {
-        if (data.answers[i].voters.includes(auth.currentUser.email)) {
-          likedCommentsArr.push(1);
-        } else {
-          likedCommentsArr.push(0);
+      // The three arrays keep track of what comments have been liked and
+      // the number of votes for each comment.
+      if (data.answers) {
+        const commentVotesArr = [];
+        for (let i = 0; i < data.answers.length; i += 1) {
+          const newCommentArr = [data.answers[i].voters.length];
+          if (data.answers[i].voters.includes(auth.currentUser.email)) {
+            newCommentArr.push(true);
+          } else {
+            newCommentArr.push(false);
+          }
+          commentVotesArr.push(newCommentArr);
         }
-        commentVotesArr.push(data.answers[i].voters.length);
-        isEditingCommentArr.push(false);
+        setCommentVotes(commentVotesArr);
       }
-      setLikedComments(likedCommentsArr);
-      setCommentVotes(commentVotesArr);
-      setIsEditingComments(isEditingCommentArr);
     }
   }
 
   async function updateSavedState() {
+    // If this post is in the user's list of saved posts, update
+    // the state variable showing this so that the correct saved icon
+    // will show on the screen.
     const saved = await fetch(`${BACKEND_URL}/api/getSaved`, {
       method: 'POST',
       headers: {
@@ -91,8 +99,8 @@ function ViewPost() {
   }, []);
 
   function postResponse(e) {
+    // Posts the provided response to the database.
     e.preventDefault();
-    const response = document.forms['answer-form'].elements.f_response.value;
     fetch(`${BACKEND_URL}/api/makeComment`, {
       method: 'POST',
       headers: {
@@ -100,8 +108,27 @@ function ViewPost() {
       },
       body: JSON.stringify({
         uid: auth.currentUser.uid,
-        body: response,
+        body: answerText,
         parent: id,
+      }),
+    }).then(_ => {
+      window.location.reload();
+    });
+  }
+
+  function editResponse(e) {
+    // Edits the comment at index commentBeingEdited
+    e.preventDefault();
+    fetch(`${BACKEND_URL}/api/editComment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        uid: auth.currentUser.uid,
+        body: answerText,
+        index: commentBeingEdited,
+        document_id: id,
       }),
     }).then(_ => {
       window.location.reload();
@@ -125,22 +152,30 @@ function ViewPost() {
     });
   }
 
-  function updateVoterState(postIndex) {
-    if (
-      postData.answers &&
-      !postData.answers[postIndex - 1].voters.includes(auth.currentUser.email)
-    ) {
-      const newLikedPosts = Array.from(likedComments);
-      const newPostVotes = Array.from(commentVotes);
-      newLikedPosts[postIndex - 1] = 1;
-      newPostVotes[postIndex - 1] += 1;
-      setLikedComments(newLikedPosts);
-      setCommentVotes(newPostVotes);
+  function updateVoterState(commentIndex, action) {
+    const newCommentVotes = Array.from(commentVotes);
+    if (action === 'like') {
+      newCommentVotes[commentIndex][0] += 1;
+      newCommentVotes[commentIndex][1] = true;
+    } else {
+      newCommentVotes[commentIndex][0] -= 1;
+      newCommentVotes[commentIndex][1] = false;
     }
+    setCommentVotes(newCommentVotes);
   }
 
   async function likeUnlikeComment(commentIndex) {
-    await fetch(`${BACKEND_URL}/api/like`, {
+    let url;
+    let action;
+    if (commentVotes[commentIndex][1]) {
+      url = `${BACKEND_URL}/api/unlike`;
+      action = 'unlike';
+    } else {
+      url = `${BACKEND_URL}/api/like`;
+      action = 'like';
+    }
+    updateVoterState(commentIndex, action);
+    await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -148,10 +183,8 @@ function ViewPost() {
       body: JSON.stringify({
         uid: auth.currentUser.uid,
         id,
-        index: commentIndex,
+        index: commentIndex + 1,
       }),
-    }).then(res => {
-      updateVoterState(commentIndex);
     });
     const newPostData = await fetch(`${BACKEND_URL}/api/getPost?post_id=${id}`);
     setPostData(await newPostData.json());
@@ -233,20 +266,36 @@ function ViewPost() {
                 for (let i = 0; i < 16; i += 1) {
                   randKey += Math.floor(Math.random() * 10);
                 }
+                if (!commentVotes[index]) {
+                  return <span key={randKey} />;
+                }
                 return (
-                  <div key={randKey} className="answer mb-5">
+                  <div key={randKey} className="mb-5">
                     <div className="row gx-5 align-items-center">
                       <div className="col-md-1">
                         <button
                           type="button"
                           className="btn btn-none"
-                          onClick={e => likeUnlikeComment(index + 1, e)}
+                          onClick={e => likeUnlikeComment(index, e)}
                         >
                           <i
                             id="upvote"
-                            className={likedComments[index] ? 'bi bi-heart-fill' : 'bi bi-heart'}
+                            className={commentVotes[index][1] ? 'bi bi-heart-fill' : 'bi bi-heart'}
                           />
                         </button>
+                        {answerObj.author === auth.currentUser.email ? (
+                          <button
+                            type="button"
+                            className="btn btn-none"
+                            onClick={_ => {
+                              setCommentBeingEdited(index);
+                              setAnswerText(answerObj.body);
+                              document.getElementById('f_response').focus();
+                            }}
+                          >
+                            <i id="editComment" className="bi bi-pencil" />
+                          </button>
+                        ) : null}
                       </div>
                       <div className="col-md-10">
                         <ReactMarkdown skipHtml>{answerObj.body}</ReactMarkdown>
@@ -254,13 +303,13 @@ function ViewPost() {
                           <div className="col-lg-6">
                             <p>
                               <strong>
-                                {commentVotes[index]}
-                                {commentVotes[index] !== 1 ? ' Votes' : ' Vote'}
+                                {commentVotes[index][0]}
+                                {commentVotes[index][0] !== 1 ? ' Votes' : ' Vote'}
                               </strong>
                             </p>
                           </div>
-                          <div className="col-lg-6">
-                            <p style={{ textAlign: 'right' }}>
+                          <div className="col-lg-6 text-end">
+                            <p>
                               Posted by
                               <strong> {answerObj.author}</strong>
                             </p>
@@ -268,11 +317,14 @@ function ViewPost() {
                         </div>
                       </div>
                     </div>
+                    <hr style={{ width: '97.5%', margin: '2rem auto' }} />
                   </div>
                 );
               })}
-              <hr />
-              <form id="answer-form" onSubmit={postResponse}>
+              <form
+                id="answer-form"
+                onSubmit={commentBeingEdited !== null ? editResponse : postResponse}
+              >
                 <div className="my-2">
                   <label className="form-label w-100" htmlFor="f_response">
                     Response
@@ -280,7 +332,7 @@ function ViewPost() {
                       className="form-control"
                       id="f_response"
                       name="f_response"
-                      rows="5"
+                      rows="10"
                       onChange={e => setAnswerText(e.target.value)}
                       value={answerText}
                       required

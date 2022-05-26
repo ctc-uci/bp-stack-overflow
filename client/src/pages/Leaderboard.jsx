@@ -18,18 +18,23 @@ function Leaderboard() {
   }, []);
 
   return (
-    <div className="Leaderboard">
-      <Container fluid className="vh 100">
-        <h2>Leaderboard</h2>
-        {users.map(group => (
-          <LeaderboardEntry
-            key={group.id}
-            name={group.id}
-            picture={group.photo_url}
-            points={group.points}
-          />
-        ))}
-      </Container>
+    <div className="Container" style={{ minHeight: '70vh' }}>
+      <div className="Leaderboard">
+        <Container>
+          <h1 className="mb-4">Leaderboard</h1>
+          {users.map((group, index) => (
+            <div key={group.id}>
+              <LeaderboardEntry
+                position={index + 1}
+                name={group.id}
+                picture={group.photo_url}
+                points={group.points}
+              />
+              {index !== users.length - 1 ? <hr /> : null}
+            </div>
+          ))}
+        </Container>
+      </div>
     </div>
   );
 }

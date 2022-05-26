@@ -1,7 +1,16 @@
-.navbar {
+.navbar, footer {
   background-color: #6331d8 !important;
 }
 
-#user-menu {
+#user-menu, footer {
   color: white;
+}
+
+footer a {
+  display: block;
+  color: white;
+}
+
+footer a:hover {
+  color: lightgray;
 }

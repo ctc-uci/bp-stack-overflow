@@ -5,7 +5,7 @@ import HelpForm from '../components/HelpForm/HelpForm';
 function Help() {
   return (
     <div>
-      <Container fluid className="vh 100">
+      <Container style={{ minHeight: '70vh' }}>
         <HelpForm />
       </Container>
     </div>

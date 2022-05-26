@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { Nav, NavDropdown, Navbar, Container } from 'react-bootstrap';
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
@@ -178,6 +178,7 @@ function App() {
             <Route path="/project-submission" element={<ProjectSubmission />} />
             <Route path="/help" element={<Help />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:tab" element={<Profile />} />
             <Route
               path="/posts/:id"
               element={
@@ -189,6 +190,19 @@ function App() {
             />
             <Route path="*" element={<NotFound404 />} />
           </Routes>
+          <footer className="py-3">
+            <div className="container">
+              <div className="row">
+                <div className="col-md-12">
+                  <strong style={{ fontSize: '1.5em', marginBottom: '2rem' }}>CTC Overflow</strong>
+                  <Link to="/leaderboard">Leaderboard</Link>
+                  <Link to="/leaderboard">Projects</Link>
+                  <Link to="/project-submission">Project Ideas</Link>
+                  <Link to="/help">Need Help?</Link>
+                </div>
+              </div>
+            </div>
+          </footer>
         </BrowserRouter>
       </UserContext.Provider>
     </div>

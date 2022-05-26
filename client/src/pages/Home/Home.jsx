@@ -13,7 +13,7 @@ const SEARCH_CLIENT = algoliasearch('UWK1WLGVN7', 'bf93f344548b12528c334d1570151
 function Home() {
   return (
     <div className="Home">
-      <div className="container">
+      <div className="container mb-4">
         <InstantSearch searchClient={SEARCH_CLIENT} indexName="postsIndex">
           <NewSearchBox />
           <NewHits />
