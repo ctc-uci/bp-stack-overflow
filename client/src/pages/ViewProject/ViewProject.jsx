@@ -32,7 +32,6 @@ function ViewProject() {
     return (
       <div className="container" style={{ minHeight: '70vh' }}>
         <h1>{project.toUpperCase()} Posts</h1>
-        {console.log(projectPosts)}
         {projectPosts.map((p, index) => {
           return (
             <div

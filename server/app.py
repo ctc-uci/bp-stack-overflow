@@ -123,7 +123,7 @@ def searchPosts():
             q = posts.order_by('answers').where('answers', '!=', []).order_by('date')
     else:
         q = posts.order_by('date')
-    resCount = 10
+    resCount = 30
     q = q.limit(resCount).offset(int(request.args['page'])*resCount)
     results = [makeDict(i) for i in q.stream()]
     return {'result': results}
