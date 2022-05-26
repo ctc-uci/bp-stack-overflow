@@ -41,7 +41,7 @@ function ProjectForm() {
       }}
     >
       {({ handleSubmit, handleChange, handleBlur, values, touched, isValid, errors }) => (
-        <div className="ProjectForm">
+        <div className="ProjectForm mb-3">
           <Form noValidate onSubmit={handleSubmit}>
             <Form.Group as={Row} className="mb-3" controlId="formName">
               <Form.Label column sm={3}>

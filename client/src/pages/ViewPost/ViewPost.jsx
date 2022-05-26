@@ -240,7 +240,7 @@ function ViewPost() {
   );
 
   return (
-    <div className="ViewPost">
+    <div className="ViewPost mb-3">
       {postData && loadedPost ? (
         <div className="container">
           <div className="row align-items-center">
