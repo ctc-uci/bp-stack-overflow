@@ -1,0 +1,24 @@
+#fya ~ label, #och ~ label, #tlp ~ label, #afc ~ label {
+    border-radius: 10px;
+    padding: 0 10px;
+}
+
+#fya ~ label {
+    background-color: rgb(185, 185, 255);
+}
+
+#och ~ label {
+    background-color: orange;
+}
+
+#tlp ~ label {
+    background-color: rgb(119, 119, 255);
+}
+
+#afc ~ label {
+    background-color: limegreen;
+}
+
+.form-check {
+    margin-bottom: 1rem !important;
+}

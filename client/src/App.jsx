@@ -20,6 +20,7 @@ import Leaderboard from './pages/Leaderboard';
 import ProjectSubmission from './pages/ProjectSubmission';
 import Profile from './pages/Profile/Profile';
 import ViewPost from './pages/ViewPost/ViewPost';
+import ViewProject from './pages/ViewProject/ViewProject';
 import NotFound404 from './pages/404/404';
 
 import './App.css';
@@ -129,12 +130,12 @@ function App() {
                     Leaderboard
                   </Nav.Link>
                   <NavDropdown title="Projects" id="basic-nav-dropdown">
-                    <NavDropdown.Item href="/view-project/1/">Find Your Anchor</NavDropdown.Item>
-                    <NavDropdown.Item href="/view-project/2/">OC Habitats</NavDropdown.Item>
-                    <NavDropdown.Item href="/view-project/3/">
+                    <NavDropdown.Item href="/view-project/fya/">Find Your Anchor</NavDropdown.Item>
+                    <NavDropdown.Item href="/view-project/och/">OC Habitats</NavDropdown.Item>
+                    <NavDropdown.Item href="/view-project/tlp/">
                       The Literacy Project
                     </NavDropdown.Item>
-                    <NavDropdown.Item href="/view-project/4/">Abound Food Care</NavDropdown.Item>
+                    <NavDropdown.Item href="/view-project/afc/">Abound Food Care</NavDropdown.Item>
                   </NavDropdown>
                   <Nav.Link href="/project-submission" active={projectIdeasActive}>
                     Project Ideas
@@ -179,6 +180,7 @@ function App() {
             <Route path="/help" element={<Help />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:tab" element={<Profile />} />
+            <Route path="/view-project/:project" element={<ViewProject />} />
             <Route
               path="/posts/:id"
               element={

@@ -28,6 +28,7 @@ function ViewPost() {
   const [hasSavedPost, setHasSavedPost] = useState(false);
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [answerText, setAnswerText] = useState('');
+  const [newPostBody, setNewPostBody] = useState('');
 
   async function grabPost() {
     // Retrieve the post with the associated id on line 15 (the call to useParams())
@@ -137,13 +138,13 @@ function ViewPost() {
 
   function editPost(e) {
     e.preventDefault();
-    const newPostBody = document.forms['edit-post-form'].elements.f_edited_post.value;
     fetch(`${BACKEND_URL}/api/editPost`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        uid: auth.currentUser.uid,
         document_id: id,
         body: newPostBody,
       }),
@@ -219,6 +220,7 @@ function ViewPost() {
         className="form-control my-3"
         rows="5"
         defaultValue={postData.body}
+        onChange={e => setNewPostBody(e.target.value)}
       />
       <input type="submit" className="btn ctc-btn" value="Edit" />
       <button type="button" className="btn btn-none" onClick={e => setIsEditingPost(false)}>
@@ -242,13 +244,43 @@ function ViewPost() {
       {postData && loadedPost ? (
         <div className="container">
           <div className="row align-items-center">
-            <div className="col-lg-10">
+            <div className="col-md-9">
               <h1>{postData.title}</h1>
             </div>
-            <div className="col-lg-2 text-end">
+            <div className="col-md-3 text-end">
               {!isEditingPost && auth.currentUser.email === postData.author ? editIcon : ``}
               {bookmarkIcon}
             </div>
+          </div>
+          <div className="mb-3">
+            {postData.tags.map(tag => {
+              let backgroundColor;
+              switch (tag) {
+                case 'och':
+                  backgroundColor = 'orange';
+                  break;
+                case 'fya':
+                  backgroundColor = 'rgb(185, 185, 255)';
+                  break;
+                case 'tlp':
+                  backgroundColor = 'rgb(119, 119, 255)';
+                  break;
+                case 'afc':
+                  backgroundColor = 'limegreen';
+                  break;
+                default:
+                  break;
+              }
+              return (
+                <span
+                  key={tag}
+                  className="me-2"
+                  style={{ backgroundColor, borderRadius: '10px', padding: '0 10px' }}
+                >
+                  {tag}
+                </span>
+              );
+            })}
           </div>
           <p>
             <strong>{postData.author}</strong> posted on {postData.date}
