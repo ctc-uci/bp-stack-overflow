@@ -94,7 +94,7 @@ def deleteComment():
 @app.route('/api/makePost',methods=['POST'])
 def makePost():
     addr = uid_to_email(request.json['uid'])
-    json = {"author":addr, 'voters':[], 'title': request.json['title'], 'body': request.json['body'], 'date':  datetime.now().strftime("%m/%d/%Y"), 'answers': []}
+    json = {"author":addr, 'voters':[], 'title': request.json['title'], 'body': request.json['body'], 'date':  datetime.now().strftime("%m/%d/%Y"), 'answers': [], 'tags': request.json['tags']}
     posts.add(json)
     return "OK",200
 
